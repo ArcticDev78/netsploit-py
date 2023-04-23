@@ -1078,8 +1078,8 @@ def prompt():
                         ['4', 'os-guesser', 'Guess the OS running on target device', 'TARGET'],  # noqa
                         ['5', 'port-scanner', 'Scan the target device for open ports', 'TARGET'],  # noqa
                         ['6', 'dos', 'Run a Denial-Of-Service attack on the target', 'TARGET'],  # noqa
-                        ['5', 'ping', 'Ping the target to see if they are online', '<prompt>: TARGET'],  # noqa
-                        ['6', 'vuln-scanner', 'Scan the target for vulnerabilities', 'TARGET']]  # noqa
+                        ['7', 'ping', 'Ping the target to see if they are online', '<prompt>: TARGET'],  # noqa
+                        ['8', 'vuln-scanner', 'Scan the target for vulnerabilities', 'TARGET']]  # noqa
 
             print(tabulate(modulesTable, stralign="left",
                            tablefmt="fancy_grid", headers="firstrow"))
