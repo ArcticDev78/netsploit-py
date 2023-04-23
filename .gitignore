@@ -98,14 +98,14 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-logs/device-info/*
+logs/device-info/*.txt
 
-logs/network-scanner/*
+logs/network-scanner/*.txt
 
-logs/os-guesser/*
+logs/os-guesser/*.txt
 
-logs/oui-lookup/*
+logs/oui-lookup/*.txt
 
-logs/port-scanner/*
+logs/port-scanner/*.txt
 
-logs/vuln-scanner/*
+logs/vuln-scanner/*.txt
