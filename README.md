@@ -40,7 +40,7 @@ pip install tabulate
 ```sh
 $ git clone https://github.com/ArcticDev78/netsploit-py.git
 ```
-OR you can Download the ZIP by clicking on Code > Download ZIP
+- OR you can Download the ZIP by clicking on Code > Download ZIP
 
 3. (Required for setup) Create folders for logging:
 - First make sure that you are in the git repository folder of netsploit
