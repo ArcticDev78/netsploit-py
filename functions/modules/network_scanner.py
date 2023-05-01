@@ -7,9 +7,10 @@ from functions.utils.config import logs_folder_path
 
 # Network scanner function
 def network_scanner():
-    from functions.utils.prompt import prompt
-    prompt_input = input(
-            f'{yellow("netsploit", "underlined")} => {blue("(network-scanner)", "bold")} {green(">")} ')  # noqa
+    from functions.utils.prompt import prompt, custom_prompt
+    # prompt_input = input(
+            # f'{yellow("netsploit", "underlined")} => {blue("(network-scanner)", "bold")} {green(">")} ')  # noqa
+    prompt_input = custom_prompt('network-scanner')
     # if prompt_input == 'show options':
     #     # if there is no set value for IP_RANGE, display as "(not set)"
     #     # or if there is an existing value, set the variable to the value

@@ -2,15 +2,17 @@
 import os
 from simple_colors import yellow, blue, green, red, cyan
 import datetime
+from tabulate import tabulate
 from functions.utils.font_styles import *
 from functions.utils.config import logs_folder_path, db
 
 # Device Info function
 def device_info():
-    from functions.utils.prompt import prompt
-    prompt_input = input(
-            f'{yellow("netsploit", "underlined")} => {blue("(device-info)", "bold")} {green(">")} ')  # noqa
-    prompt_input = prompt_input.lower()
+    from functions.utils.prompt import prompt, custom_prompt
+    # prompt_input = input(
+            # f'{yellow("netsploit", "underlined")} => {blue("(device-info)", "bold")} {green(">")} ')  # noqa
+    # prompt_input = prompt_input.lower()
+    prompt_input = custom_prompt('device-info')
 
     if prompt_input == 'show options':
         # If the value is not set (default is False), set `value` to "(not set)".  # noqa

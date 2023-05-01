@@ -2,6 +2,7 @@
 import os
 from simple_colors import yellow, blue, green, red, cyan
 import datetime
+from tabulate import tabulate
 from functions.utils.font_styles import *
 from functions.utils.config import logs_folder_path, db
 

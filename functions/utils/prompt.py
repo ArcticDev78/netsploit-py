@@ -20,6 +20,7 @@ from functions.modules.shell import shell
 from functions.modules.auto import auto
 # from functions.utils.prompt import prompt
 
+
 def prompt():
     prompt_input = input(yellow('netsploit', 'underlined') + ' ' + green('>') + ' ')  # noqa
 
@@ -215,3 +216,12 @@ def prompt():
             error_message(
                 f'Invalid command: "{args[0]}". Please enter a valid command.')
             prompt()
+
+# The prompts used inside the modules.
+# Example: `netsploit => (yourModuleName) > `
+def custom_prompt(moduleName):
+    custom_prompt_input = input(
+        f'{yellow("netsploit", "underlined")} => {blue(f"({moduleName})", "bold")} {green(">")} ')  # noqa
+    custom_prompt_input = custom_prompt_input.lower()
+
+    return custom_prompt_input
