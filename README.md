@@ -58,4 +58,4 @@ $ python3 netsploit.py
 
 ---
 ## Sources
-- The `oui.txt` (OUI Lookup Database) was taken from ![https://www.wireshark.org/download/automated/data/manuf](the Wireshark website) - I did not create or own this.
+- The `oui.txt` (OUI Lookup Database) was taken from [the Wireshark website](https://www.wireshark.org/download/automated/data/manuf) - I did not create or own this.
