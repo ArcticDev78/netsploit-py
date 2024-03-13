@@ -1,7 +1,7 @@
 # netsploit-py
 ### This is a project to help you use nmap and similar network tools easily and efficiently.
 
-![Screenshot](screenshot.png)
+![Screenshot](resources/screenshot.png)
 
 Available commands / modules:
 
@@ -55,7 +55,7 @@ $ mkdir device-info network-scanner os-guesser oui-lookup port-scanner vuln-scan
 ```sh
 $ python3 netsploit.py
 ```
-- OR you can run the bash script which in turn runs the above command to run the python file (idk why I have this, I'll probably remove it)
-```sh
-$ ./run.sh
-```
+
+---
+## Sources
+- The `oui.txt` (OUI Lookup Database) was taken from ![https://www.wireshark.org/download/automated/data/manuf](the Wireshark website) - I did not create or own this.
