@@ -88,6 +88,9 @@ venv.bak/
 # pytype static type analyzer
 .pytype/
 
+# pyright config
+pyrightconfig.json
+
 # vscode
 .vscode/
 
