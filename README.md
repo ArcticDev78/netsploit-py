@@ -25,7 +25,7 @@
 | 7   | ping            | Ping the target to see if they are online    |
 | 8   | vuln-scanner    | Scan the target for vulnerabilities          |
 
-> [] NOTE:
+> [!info] NOTE:
 
 -   This is a work-in-progress project. Surely many things can be improved here and there, so feel free to open an issue about it.
 -   If something doesn't work on your platform, please feel free to open an issue about it.
@@ -77,13 +77,9 @@ $ mkdir device-info network-scanner os-guesser oui-lookup port-scanner vuln-scan
 $ python3 netsploit.py
 ```
 
-2. Use a module or use the `auto` command:
+2. Use either a module or the `auto` command:
    a) Use a module of your choice: - Type `"use <module>"` to use a module (<module> is the name of the module to use)
-
-#### _OR:_
-
-    b) Use the `auto` command to automate the usage of `netsploit`:
-        - Type `auto` in the prompt and follow the prompts to complete your desired action(s).
+   b) Use the `auto` command to automate the usage of `netsploit`: - Type `auto` in the prompt and follow the prompts to complete your desired action(s).
 
 ---
 
