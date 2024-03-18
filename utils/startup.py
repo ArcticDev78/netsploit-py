@@ -15,7 +15,7 @@ def startup():
     print(blue(HEADER, "bold"))
 
     # 2. Print init messages
-    print(yellow(" => netsploit v1.0", "bold"))
+    print(yellow(" => netsploit v0.8", "bold"))
     print(yellow(" => Powered by nmap, ping and hping3", "bold"))
     print(green(" => 9 modules ready to use", "bold"))
     print(blue(" => 5 Scanners, 3 Info, 1 Attack", "bold"))
