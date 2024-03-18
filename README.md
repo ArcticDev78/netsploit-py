@@ -1,6 +1,6 @@
 # netsploit-py
 
-### This is a project to help you use nmap and similar network tools easily and efficiently.
+### This is a tool to help you use nmap and similar network tools easily and efficiently.
 
 ![Screenshot](resources/screenshot.png)
 
@@ -12,7 +12,12 @@
     -   Logging will not work out-of-the-box; you WILL need to set it up with the instructions below.
 -   As a user, you just need to run the `netsploit.py` file (instructions are given below), you don't need to touch any of the source code unless you want to.
 
-## Commands/Modules:
+
+> [!NOTE] NOTE:
+-   This is a work-in-progress project. Surely many things can be improved here and there, so feel free to open an issue about it.
+-   If something doesn't work on your platform, please feel free to open an issue about it.
+-   This project is made targeted for Linux platform. So there it might not work on other platforms. It might work on macOS with some changes.
+
 
 | No. | Command         | Description                                  |
 | --- | --------------- | -------------------------------------------- |
@@ -25,11 +30,6 @@
 | 7   | ping            | Ping the target to see if they are online    |
 | 8   | vuln-scanner    | Scan the target for vulnerabilities          |
 
-> [!info] NOTE:
-
--   This is a work-in-progress project. Surely many things can be improved here and there, so feel free to open an issue about it.
--   If something doesn't work on your platform, please feel free to open an issue about it.
--   This project is made targeted for Linux platform. So there it might not work on other platforms. It might work on macOS with some changes.
 
 ## Get Started
 
