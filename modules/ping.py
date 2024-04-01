@@ -68,7 +68,6 @@ class Ping:
            (through `input`) will be taken as the target to ping.
         """
         if target_param:
-            # from utils.prompt import prompt
 
             # Ask the user for the IP of the device to ping
             # target = input("Enter IP of device to ping: ")
@@ -92,10 +91,13 @@ class Ping:
             print()
             # Print a `success_message` to let the user know the `ping` command has finished running
             success_message(f"Finished pinging {target}\n")
-            # prompt()
 
     def run(self, pingmode):
-        """`run` method to access each ping mode"""
+        """
+        `pingmode` paramater is used to specify one of the following two modes to ping the target:
+        1. `ping` -> This is the OS built-in ping command.
+        2. `nping` -> This command comes along with your `nmap` install.
+        """
         from utils.prompt import prompt
 
         # If the user chooses to use the first option - ping
@@ -158,9 +160,6 @@ class Ping:
                 # If the user responds yes, pass the `already_set_target` in `self._n_ping()`
                 # Otherwise, prompt the user for their desired target
 
-                # self.__nping(already_set_target)
-                # prompt()
-                # else:
                 # Prompt the user if they want to use the `already_set_target` or not
                 userchoice = input(
                     (
@@ -201,82 +200,11 @@ class Ping:
 
         # If the user chooses to use the first option - ping
         if pingmode == ("ping", "1"):
-            # already_set_target = DB.get("TARGET")
-            # # If the user has NOT already provided a target before, then prompt the user for it
-            # # and use that in `self.__ping()`
-            # if already_set_target is False:
-            #     self.__ping()
-            #     prompt()
-            # # Else, check if the user HAS already provided a target before, and if it is so,
-            # # prompt the user if they want to use the same target.
-            # # If the user responds yes, pass the `already_set_target` in `self.__ping()`
-            # # Otherwise, prompt the user for their desired target
-            # else:
-            #     # Prompt the user if they want to use the `already_set_target` or not
-            #     userchoice = input(
-            #         (
-            #             f'[{green(">", "bold")}] {cyan(f"Target has already been set. Do you want to ping {already_set_target}? [y/n]: ")}'
-            #         )
-            #     )
-            #     if userchoice == "y":
-            #         print()
-            #         self.__ping(already_set_target)
-            #         prompt()
-            #
-            #     elif userchoice == "n":
-            #         print()
-            #         success_message(
-            #             f"OK, {red('not', 'bold')} using {already_set_target} as target."
-            #         )
-            #         print()
-            #         target = input(
-            #             f'[{green(">", "bold")}] {cyan("IP of device to ping:")} '
-            #         )
-            #         print()
-            #         self.__ping(target)
-            #         prompt()
             self.run("ping")
             prompt()
 
         # Else, if the user chooses to use the second option - nping
         elif pingmode in ("nping", "2"):
-            # already_set_target = DB.get("TARGET")
-            # # If the user has NOT already provided a target before, then prompt the user for it
-            # # and use that in `self.__nping()`
-            # if already_set_target is False:
-            #     self.__nping()
-            #     prompt()
-            # # Else, check if the user HAS already provided a target before, and if it is so,
-            # # prompt the user if they want to use the same target.
-            # # If the user responds yes, pass the `already_set_target` in `self._n_ping()`
-            # # Otherwise, prompt the user for their desired target
-            # else:
-            #     # self.__nping(already_set_target)
-            #     # prompt()
-            #     # else:
-            #     # Prompt the user if they want to use the `already_set_target` or not
-            #     userchoice = input(
-            #         (
-            #             f'[{green(">", "bold")}] {cyan(f"Target has already been set. Do you want to ping {already_set_target}? [y/n]: ")}'
-            #         )
-            #     )
-            #     if userchoice == "y":
-            #         print()
-            #         self.__nping(already_set_target)
-            #         prompt()
-            #
-            #     elif userchoice == "n":
-            #         print()
-            #         success_message(
-            #             f"OK, {red('not', 'bold')} using {already_set_target} as target."
-            #         )
-            #         print()
-            #         target = input(
-            #             f'[{green(">", "bold")}] {cyan("IP of device to ping:")} '
-            #         )
-            #         print()
-            #         self.__nping(target)
-            #         prompt()
             self.run("nping")
             prompt()
 
@@ -285,56 +213,4 @@ class Ping:
             error_message(
                 f'Invalid option: "{pingmode}", please enter either "ping" or "nping" as per your needs.\n'
             )
-            # ping()
             self.main()
-        # else:
-        #
-        #     userchoice = input(
-        #         (
-        #             f'[{green(">", "bold")}] {cyan(f"Target has already been set. Do you want to ping {already_set_target}? [y/n]: ")}'
-        #         )
-        #     )
-        #     if userchoice == "y":
-        #         # target = input(f'[{green(">", "bold")}] {cyan("IP of device to ping:")} ')
-        #         print()
-        #         info_message(f"Pinging {already_set_target} (5 times)...\n")
-        #         os.system(f"ping -c 5 {already_set_target}")
-        #         print()
-        #         success_message(f"Finished pinging {already_set_target}\n")
-        #         prompt()
-        #         # elif pingmode == 'nping' or '2':
-        #         #     target = input('Enter IP of device to ping: ')
-        #         #     print()
-        #         #     info_message(f'Pinging {target} (5 times)...')
-        #         #     os.system(f'nping -c 5 {target}')
-        #         #     print()
-        #         #     success_message(f'Finished pinging {target}\n')
-        #         #     prompt()
-        #         # else:
-        #         #     print()
-        #         #     error_message(f'Invalid option: "{pingmode}", please enter either "ping" or "nping" as per your needs.\n')
-        #         #     ping()
-        #
-        #     elif userchoice == "n":
-        #         print()
-        #         success_message(f"OK, not using {already_set_target} as target.")
-        #         print()
-        #         target = input(f'[{green(">", "bold")}] {cyan("IP of device to ping:")} ')
-        #         print()
-        #         info_message(f"Pinging {target} (5 times)...\n")
-        #         os.system(f"ping -c 5 {target}")
-        #         print()
-        #         success_message(f"Finished pinging {target}\n")
-        #         prompt()
-        # elif pingmode == 'nping' or '2':
-        #     target = input('Enter IP of device to ping: ')
-        #     print()
-        #     info_message(f'Pinging {target} (5 times)...')
-        #     os.system(f'nping -c 5 {target}')
-        #     print()
-        #     success_message(f'Finished pinging {target}\n')
-        #     prompt()
-        # else:
-        #     print()
-        #     error_message(f'Invalid option: "{pingmode}", please enter either "ping" or "nping" as per your needs.\n')
-        #     ping()

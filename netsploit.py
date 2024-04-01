@@ -1,4 +1,4 @@
-""" This is the main file of the whole program (DO NOT DELETE THIS FILE!) """
+""" This is the main file of the whole program """
 
 # /// IMPORTS ///
 from utils.exit_program import exit_program

@@ -68,7 +68,7 @@ def custom():
         )
         if choice == "y":
             print()
-            shell()
+            Shell().run(custom_nmap_cmd)
         elif choice == "n":
             print()
             prompt()

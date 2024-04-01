@@ -20,12 +20,13 @@ from modules.vuln_scanner import VulnerabilityScanner
 
 from .exit_program import exit_program
 from .font_styles import error_message, info_message
+from .help import Help
 
 
 def prompt():
     """Function to handle the prompts in which the user can enter other modules"""
     try:
-        # The main (top-level?) prompt of NetSploit:
+        # The main (base) prompt of NetSploit:
         prompt_input = input(yellow("netsploit", "underlined") + " " + green(">") + " ")
 
         # Variables to handle the `prompt_input`
@@ -34,7 +35,6 @@ def prompt():
         command = args[
             0
         ]  # args[0] is the top-level prompt command (eg: help, modules, etc.)
-        # module = args[1]  # args[1] is the module name under `use` command
 
         # If nothing was entered (empty string was returned), run prompt again
         if args_length == 0:
@@ -48,7 +48,7 @@ def prompt():
                         print()
                         info_message(
                             f'Selected {green("network-scanner", "bold")} module.'
-                        )  # noqa
+                        )
                         print(
                             """ \033[1;36m
     ╒═════════════════════════════════════════════════════════════════╕
@@ -58,15 +58,13 @@ def prompt():
     │      Find devices connected to the network and retrieve         │
     │                basic information about them                     │
     ╘═════════════════════════════════════════════════════════════════╛     \033[1;m"""
-                        )  # noqa
+                        )
                         print()
                         NetworkScanner().main()
 
                     elif args[1] == "device-info":
                         print()
-                        info_message(
-                            f'Selected {green("device-info", "bold")} module'
-                        )  # noqa
+                        info_message(f'Selected {green("device-info", "bold")} module')
                         print(
                             """ \033[1;36m
     ╒═════════════════════════════════════════════════════════════════╕
@@ -76,16 +74,13 @@ def prompt():
     │      Use a series of scans to gather information about          │
     │                      the target device                          │
     ╘═════════════════════════════════════════════════════════════════╛     \033[1;m"""
-                        )  # noqa
+                        )
                         print()
-                        # device_info()
                         DeviceInfo().main()
 
                     elif args[1] == "os-guesser":
                         print()
-                        info_message(
-                            f'Selected {green("os-guesser", "bold")} module'
-                        )  # noqa
+                        info_message(f'Selected {green("os-guesser", "bold")} module')
                         print(
                             """ \033[1;36m
     ╒═════════════════════════════════════════════════════════════════╕
@@ -96,15 +91,13 @@ def prompt():
     │      the operating system the target is running, the version    │
     │                of the operating system, etc.                    │
     ╘═════════════════════════════════════════════════════════════════╛     \033[1;m"""
-                        )  # noqa
+                        )
                         print()
                         OSGuesser().main()
 
                     elif args[1] == "oui-lookup":
                         print()
-                        info_message(
-                            f'Selected {green("oui-lookup", "bold")} module'
-                        )  # noqa
+                        info_message(f'Selected {green("oui-lookup", "bold")} module')
                         print(
                             """ \033[1;36m
     ╒═════════════════════════════════════════════════════════════════╕
@@ -114,9 +107,8 @@ def prompt():
     │      Find the manufacturer of the target device using its       │
     │                          MAC Address.                           │
     ╘═════════════════════════════════════════════════════════════════╛     \033[1;m"""
-                        )  # noqa
+                        )
                         print()
-                        # oui_lookup()
                         OuiLookup().main()
 
                     elif args[1] == "port-scanner":
@@ -130,7 +122,7 @@ def prompt():
     │                                                                 │
     │             Scan the target device for open ports               │
     ╘═════════════════════════════════════════════════════════════════╛     \033[1;m"""
-                        )  # noqa
+                        )
                         print()
                         PortScanner().main()
 
@@ -145,9 +137,8 @@ def prompt():
     │     Send a succession of SYN requests to the target system      │
     │     to make the system unresponsive to legitimate traffic       │
     ╘═════════════════════════════════════════════════════════════════╛     \033[1;m"""
-                        )  # noqa
+                        )
                         print()
-                        # dos()
                         DoS().main()
 
                     elif args[1] == "ping":
@@ -162,7 +153,7 @@ def prompt():
     │                Check the accessibility of devices               │
     │      and show how long it takes for packets to reach host       │
     ╘═════════════════════════════════════════════════════════════════╛     \033[1;m"""
-                        )  # noqa
+                        )
                         print()
                         Ping().main()
 
@@ -170,7 +161,7 @@ def prompt():
                         print()
                         info_message(
                             f'Selected {green("vuln-scannner", "bold")} module'
-                        )  # noqa
+                        )
                         print(
                             """ \033[1;36m
     ╒═════════════════════════════════════════════════════════════════╕
@@ -180,7 +171,7 @@ def prompt():
     │          Scan the target for potential vulnerabilities          │
     │                     that can be exploited                       │
     ╘═════════════════════════════════════════════════════════════════╛     \033[1;m"""
-                        )  # noqa
+                        )
                         print()
                         VulnerabilityScanner().main()
 
@@ -194,13 +185,13 @@ def prompt():
                         error_message(
                             "Please enter a valid module name. Example:",
                             "use network-scanner",
-                        )  # noqa
+                        )
                         prompt()
                 except IndexError:
                     error_message(
                         "Please enter a valid module name. Example:",
                         "use network-scanner",
-                    )  # noqa
+                    )
                     prompt()
 
             elif command == "exit":
@@ -216,7 +207,6 @@ def prompt():
             elif command == "modules":
                 print()
                 print(f'{yellow("Modules:", ["bold", "underlined"])}')
-                # WIP: Fill in the respective lines with the data provided by each class
                 modules_table = [
                     ["", "Module", "Information", "Options"],
                     [
@@ -233,27 +223,18 @@ def prompt():
                     ],
                     [
                         "3",
-                        # "oui-lookup",
-                        # "Find the manufacturer of target with OUI",
-                        # "<prompt>: OUI",
                         OuiLookup().name,
                         OuiLookup().description,
                         OuiLookup().options,
-                    ],  # noqa
+                    ],
                     [
                         "4",
-                        # "os-guesser",
-                        # "Guess the OS running on target device",
-                        # "TARGET",
                         OSGuesser().name,
                         OSGuesser().description,
                         OSGuesser().options,
-                    ],  # noqa
+                    ],
                     [
                         "5",
-                        # "port-scanner",
-                        # "Scan the target device for open ports",
-                        # "TARGET",
                         PortScanner().name,
                         PortScanner().description,
                         PortScanner().options,
@@ -266,9 +247,6 @@ def prompt():
                     ],
                     [
                         "7",
-                        # "ping",
-                        # "Ping the target to see if they are online",
-                        # "<prompt>: TARGET",
                         Ping().name,
                         Ping().description,
                         Ping().options,
@@ -280,8 +258,7 @@ def prompt():
                         "TARGET",
                     ],
                 ]
-                # ]
-
+                # Display the modules in the format of a table:
                 print(
                     tabulate(
                         modules_table,
@@ -290,7 +267,7 @@ def prompt():
                         headers="firstrow",
                     )
                 )
-                # print()
+                print()
                 info_message('"TARGET" option is the IP Address of the target device.')
                 info_message(
                     '"OUI" option is the first 3 parts of the MAC Address of the target device.'
@@ -304,26 +281,7 @@ def prompt():
 
             elif command == "help":
                 print()
-                print(f'{cyan("Commands", ["bold", "underlined"])}:')
-                print(
-                    f'  {yellow("help", "bold")}            |  {green("Print this help message", "italic")}'
-                )  # noqa
-                print(
-                    f'  {yellow("use", "bold")} <module>    |  {green("Select a module to use", "italic")}'
-                )  # noqa
-                print(
-                    f'  {yellow("modules", "bold")}         |  {green("Show available modules to use", "italic")}'
-                )  # noqa
-                print(
-                    f'  {yellow("shell", "bold")}           |  {green("Run a shell command", "italic")}'
-                )  # noqa
-                print(
-                    f'  {yellow("clear", "bold")}           |  {green("Clear the [terminal] screen", "italic")}'
-                )  # noqa
-                print(
-                    f'  {yellow("exit", "bold")}            |  {green("Exit the program", "italic")}'
-                )  # noqa
-                print()
+                Help().prompt_msg()
                 prompt()
 
             elif command == "shell":
@@ -338,19 +296,16 @@ def prompt():
                 )
                 prompt()
     except IndexError:
-        # error_message(
-        #     "Please enter a valid module name. Example:", "use network-scanner"
-        # )  # noqa
         prompt()
 
 
 # The prompts used inside the modules.
-# Example: `netsploit => (yourModuleName) > `
+# Example: `netsploit => (MODULE NAME) > `
 def custom_prompt(module_name):
     """Function that acts as a template for the prompts in each module"""
     custom_prompt_input = input(
         f'{yellow("netsploit", "underlined")} => {blue(f"({module_name})", "bold")} {green(">")} '
-    )  # noqa
+    )
     custom_prompt_input = custom_prompt_input.lower()
 
     return custom_prompt_input

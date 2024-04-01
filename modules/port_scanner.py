@@ -31,7 +31,6 @@ class PortScanner:
             error_message(
                 "Cannot run scan(s) without TARGET being specified. Please specify the TARGET and try again"
             )
-            # self.main()
         else:
             info_message(
                 f"Running port scan on {target}, this may take up to two minutes"
@@ -51,7 +50,6 @@ class PortScanner:
                 f'[{green(">", "bold")}] {cyan("Do you want to save the Port Scanner results to a log file? (y/n): ", "bold")}'
             )
             if choice == "y":
-                # pwd = os.popen('pwd').read()
                 print()
                 success_message(
                     f"Saved results to log file: {LOGS_FOLDER_PATH}port-scanner/{filename}"
@@ -81,7 +79,7 @@ class PortScanner:
             value = "(not set)" if DB.get("TARGET") is False else DB.get("TARGET")
             # Table for displaying options and other info
             table = [["OPTIONS", "VALUE", "OPTIONAL?"], ["TARGET", value, "no"]]
-            # Print the table (on to the console, of course)
+            # Print the table
             print(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
             self.main()
 
@@ -156,7 +154,7 @@ class PortScanner:
 
         elif prompt_input == "help":
             print()
-            print(f'{cyan("Help for port-scanner:", ["bold", "underlined"])}')
+            print(f'{cyan(f"Help for {self.name}:", ["bold", "underlined"])}')
             print()
             print(
                 f'[{yellow("Optional", "italic")}] See options that you can set using {yellow("show options", "bold")}'

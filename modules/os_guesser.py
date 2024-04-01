@@ -9,8 +9,6 @@ import os
 from simple_colors import cyan, green, yellow
 from tabulate import tabulate
 
-# from utils import (DB, LOGS_FOLDER_PATH, error_message, exit_program,
-# info_message, success_message)
 from utils.config import DB, LOGS_FOLDER_PATH
 from utils.exit_program import exit_program
 from utils.font_styles import error_message, info_message, success_message
@@ -37,9 +35,6 @@ class OSGuesser:
             error_message(
                 "Cannot run scan(s) without TARGET being specified.\nPlease specify the TARGET and try again"
             )
-            # auto()
-            # self.run("auto", target)
-            # self.main()
         else:
             # Or, if the value of `TARGET` IS set:
             info_message(
@@ -63,12 +58,10 @@ class OSGuesser:
             success_message(f"Finished scanning {target}")
             print()
             # Ask the user if they want to save the scan results to a log file.
-            # print()
             choice = input(
                 f'[{green(">", "bold")}] {cyan("Do you want to save the OS Guesser results to a log file? (y/n): ", "bold")}'
             )
             if choice == "y":  # If the user agrees, i.e. types "y":
-                # pwd = os.popen('pwd').read()  # For printing to success message
                 print()
                 # Print a success message stating the log has been saved.
                 success_message(
@@ -90,15 +83,12 @@ class OSGuesser:
                 os.system(
                     f'rm "{LOGS_FOLDER_PATH}os-guesser/{filename}" -f'
                 )  # Delete the log file
-                # self.main()
-            # self.main()
 
     def main(self):
+        """Method which includes module prompt with all in-module commands"""
         from utils.prompt import custom_prompt, prompt
 
         prompt_input = custom_prompt("os-guesser")
-        # prompt_input = input(f'{yellow("netsploit", "underlined")} => {blue("(os-guesser)", "bold")} {green(">")} ')
-        # prompt_input = prompt_input.lower()
 
         if prompt_input == "show options":
             value = "(not set)" if DB.get("TARGET") is False else DB.get("TARGET")
@@ -136,56 +126,6 @@ class OSGuesser:
             else:
                 # Or, if the value of `TARGET` is set:
 
-                # info_message(
-                #     f"Running OS Guesser scan on {target}, this may take up to two minutes"
-                # )
-                # info_message(
-                #     "Running a OS Guesser scan properly requires the command to be run using sudo"
-                # )
-                # print()
-                # # For logging
-                # date = datetime.datetime.now()
-                # formatted_time = date.strftime("%I-%M-%S_%p_%d-%b-%Y")
-                # filename = f"os-guesser_log_{formatted_time}.txt"
-                # # Run the scan
-                # os.system(
-                #     f'sudo nmap -O --osscan-guess {target} -Pn  -oN "{LOGS_FOLDER_PATH}/os-guesser/{filename}"'
-                # )
-                # # os.system(f'sudo nmap -O --osscan-guess {TARGET} -Pn')
-                # print()
-                # # Print a success message
-                # success_message(f"Finished scanning {target}")
-                # print()
-                # # Ask the user if they want to save the scan results to a log file.
-                # # print()
-                # choice = input(
-                #     f'[{green(">", "bold")}] {cyan("Do you want to save the OS Guesser results to a log file? (y/n): ", "bold")}'
-                # )
-                # if choice == "y":  # If the users agrees, i.e. types "y":
-                #     # pwd = os.popen('pwd').read()  # For printing to success message
-                #     print()
-                #     # Print a success message stating the log has been saved.
-                #     success_message(
-                #         f'Saved results to log file: "{LOGS_FOLDER_PATH}os-guesser/{filename}"'
-                #     )
-                #     print()
-                # elif choice == "n":  # Else if the user disagrees, i.e. types "n":
-                #     os.system(
-                #         f'rm "{LOGS_FOLDER_PATH}os-guesser/{filename}" -f'
-                #     )  # Delete the log file
-                #     print()
-                #     success_message("Did not save log file.")
-                #     print()
-                # else:
-                #     # If the user types anything other than "y" or "n":
-                #     print()
-                #     error_message("Invalid option. Enter either y - YES or n - NO")
-                #     print()
-                #     os.system(
-                #         f'rm "{LOGS_FOLDER_PATH}network-scanner/{filename}" -f'
-                #     )  # Delete the log file
-                #     self.main()
-                # self.main()
                 self.run(TARGET)
             self.main()
 
@@ -209,7 +149,7 @@ class OSGuesser:
         elif prompt_input == "help":
             # Help message
             print()
-            print(f'{cyan("Help for os-guesser:", ["bold", "underlined"])}')
+            print(f'{cyan(f"Help for {self.name}:", ["bold", "underlined"])}')
             print()
             print(
                 f'[{yellow("Optional", "italic")}] See options that you can set using {yellow("show options", "bold")}'

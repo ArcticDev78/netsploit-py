@@ -53,43 +53,13 @@ class OuiLookup:
                         for line in source_file:
                             # Search for the desired string within the line
                             if query in line:
-                                # DB.set("OUI_FOUND", True)
-                                # success_message(f'Found OUI {cyan(query, "bold")} in database.')
-                                # Print the line which was found
                                 print(f'[{green("✓", "bold")}] {yellow(line, "bold")}')
                                 # Write the line to the destination text file
                                 output_file.write(line)
-                            # else:
-                            #     error_message(
-                            #         f'Could not find OUI {cyan(query, "bold")} in database.'
-                            #     )
 
                     # Close both the source and destination text files
                     source_file.close()
                     output_file.close()
-
-                    # Search the OUI Database (`OUI_FILE_PATH`) for `query` (inputted string)
-                    # with open(OUI_FILE_PATH, "r") as file:
-                    #     lines = file.readlines()
-                    #     file_data = file.read()
-                    #     file.close()
-                    #     # for line in lines:
-                    #         if query in file_data:
-                    #             DB.set("OUI_FOUND", True)
-                    #             print()
-                    #             success_message(f'Found OUI {cyan(query, "bold")} in database.')
-                    #             print(f'\n\t{yellow(line, "bold")}\n')
-                    #         # else:
-                    #
-                    #             DB.set(
-                    #                 "OUI_FOUND", False
-                    #             )  # Probably a bad practice but its there so that the value can get cleared
-                    #             print()
-                    #             error_message(
-                    #                 f'Could not find OUI {cyan(query, "bold")} in database.'
-                    #             )
-                    #             print()
-                    # oui_found = DB.get("OUI_FOUND")
 
                     # if oui_found is True:
                     log_choice = input(
@@ -97,11 +67,6 @@ class OuiLookup:
                     )
                     if log_choice == "y":  # If the users agrees, i.e. types "y":
                         print()
-                        # Create and write the results to a log file
-                        # with open(log_filename, "w") as log_file:
-                        #     for line in lines:
-                        #         for query in lines:
-                        #             log_file.write(f"{query}\n")
 
                         # We are not creating any file and writing to it as it is already done above
                         success_message(f"Saved results to log file: {log_filename}")
@@ -123,9 +88,6 @@ class OuiLookup:
                             )
                             prompt()
 
-                        # print()
-                        # success_message("Did not save log file.")
-                        # print()
                     else:
                         # If the user types anything other than "y" or "n":
                         print()
@@ -153,9 +115,6 @@ class OuiLookup:
 
         # Clear the value for the next module run
         try:
-            # DB.rem("OUI_FOUND")
             prompt()
         except KeyError:
             prompt()
-
-        # prompt()

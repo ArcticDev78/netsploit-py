@@ -6,7 +6,7 @@
 import pickledb
 
 # /// STARTUP SCREEN
-# Header to be shown on startup
+# Header to be shown on startup - you can change this to whatever you want!
 HEADER = """
      __     _   __       _       _ _
   /\\ \\ \\___| |_/ _\\_ __ | | ___ (_) |_
