@@ -1,12 +1,20 @@
 """ STARTUP """
 
 # Import required libraries for startup messages
-import os
-
-from simple_colors import blue, green, yellow
+from utils.colors import blue, cyan, green, yellow
 from tabulate import tabulate
+from utils.secure_utils import run_user_command
 
-from .config import HEADER
+__version__ = "0.8.7"
+
+HEADER = """
+     __     _   __       _       _ _
+  /\\ \\ \\___| |_/ _\\_ __ | | ___ (_) |_
+ /  \\/ / _ \\ __\\ \\| '_ \\| |/ _ \\| | __|
+/ /\\  /  __/ |__\\ \\ |_) | | (_) | | |_
+\\_\\ \\/ \\___|\\__\\__/ .__/|_|\\___/|_|\\__|
+                  |_|
+"""
 
 
 def startup():
@@ -14,57 +22,101 @@ def startup():
     # 1. Print ASCII art of "NetSploit"
     print(blue(HEADER, "bold"))
 
-    # 2. Print init messages
-    print(yellow(" => netsploit v0.8", "bold"))
+    # 2. Print init messages (version, dependencies and extra info)
+    print(yellow(f" => netsploit v{__version__}", "bold"))
     print(yellow(" => Powered by nmap, ping and hping3", "bold"))
     print(green(" => 9 modules ready to use", "bold"))
-    print(blue(" => 5 Scanners, 3 Info, 1 Attack", "bold"))
+    print(blue(" => 5 Scanners, 3 Info and 1 Attack Module", "bold"))
 
     # 3. Set variables for printing network configuration table
-    # Get the network gateway IP (router)
-    n_gateway = (
-        os.popen("ip route show | grep -i 'default via'| awk '{print $3 }'")
-        .read()
-        .replace("\n", "")
-    )
-    # gateway = gateway.replace("\n", "")
+    # 3.1 Get the network gateway IP (router)
+    try:
+        cp = run_user_command("ip route show", timeout=5, use_shell=False, capture_output=True)
+        stdout = cp.stdout or ""
+        network_gateway = ""
+        for line in stdout.splitlines():
+            if line.startswith("default via"):
+                parts = line.split()
+                if len(parts) >= 3:
+                    network_gateway = parts[2]
+                    break
+    except Exception:
+        network_gateway = ""
 
-    # Get the current network interface being used
-    n_interface = (
-        os.popen("route | awk '/Iface/{getline; print $8}'").read().replace("\n", "")
-    )
-    # up_interface = up_interface.replace("\n", "")
+    # 3.2 Get the current network interface being used
+    try:
+        cp = run_user_command(["ip","-o","link"], timeout=5, use_shell=False, capture_output=True)
+        stdout = cp.stdout or ""
+        network_interface = ""
+        # pick first non-loopback interface name
+        for line in stdout.splitlines():
+            parts = line.split()
+            if len(parts) >= 2 and not parts[1].startswith('lo'):
+                network_interface = parts[1].rstrip(':')
+                break
+    except Exception:
+        network_interface = ""
 
-    # Get wireless network name (Previously used; Works on Linux distros except for Fedora)
-    # n_name = os.popen('iwgetid -r').read()
+    # 3.3 Get wireless network name
 
-    # Get wireless network name (Work-around for Fedora Linux)
-    # n_name = os.popen("nmcli -t -f NAME connection show --active").read()
+    # Previously used method to get SSID; Works on Linux distros except for Fedora
+    # network_name = os.popen('iwgetid -r').read()
 
-    # Get network MAC address
-    n_mac = os.popen(
-        "ip addr | grep 'state UP' -A1 | tail -n1 | awk '{print $2}' | cut -f1  -d'/'"
-    ).read()  # noqa
-    n_ip = os.popen("hostname -I").read()  # Local IP address
-    n_host = os.popen("hostname").read()  # hostname
+    # Work-around method for Fedora Linux  to get SSID
+    try:
+        cp = run_user_command(["nmcli","-t","-f","NAME","connection","show","--active"], timeout=5, use_shell=False, capture_output=True)
+        network_name = (cp.stdout or "").strip()
+    except Exception:
+        network_name = ""
+
+    # 3.4 Get network MAC address
+    try:
+        cp = run_user_command(["ip","addr"], timeout=5, use_shell=False, capture_output=True)
+        stdout = cp.stdout or ""
+        network_mac = ""
+        for line in stdout.splitlines():
+            if 'link/ether' in line:
+                # extract mac
+                parts = line.split()
+                try:
+                    idx = parts.index('link/ether')
+                    network_mac = parts[idx+1]
+                    break
+                except ValueError:
+                    continue
+    except Exception:
+        network_mac = ""
+
+    try:
+        cp = run_user_command(["hostname","-I"], timeout=3, use_shell=False, capture_output=True)
+        network_ip = (cp.stdout or "").strip()
+    except Exception:
+        network_ip = ""
+    try:
+        cp = run_user_command(["hostname"], timeout=3, use_shell=False, capture_output=True)
+        network_hostname = (cp.stdout or "").strip()
+    except Exception:
+        network_hostname = ""
 
     # 4. Print network configuration table
     print(
-        """ \033[1;36m                                                                                                                                       
+        """ \033[1;36m
     ╒══════════════════════════════════════════════════════════════════════════╕
     │                        Your Network Configuration                        │
     ╘══════════════════════════════════════════════════════════════════════════╛     \033[1;m"""
-    )  # noqa
+    )
 
-    # Print network configuration, using tabulate as table.
+    # 4.1 Setup the network configuration table
     table = [
-        ["IP Address", "MAC Address", "Gateway", "Iface", "Hostname"],
-        ["", "", "", "", ""],
-        [n_ip, n_mac.upper(), n_gateway, n_interface, n_host],
+        ["IP Address", "MAC Address", "Gateway", "Iface", "Hostname", "SSID"],
+        [network_ip, network_mac.upper() if network_mac else "", network_gateway, network_interface, network_hostname, network_name],
     ]
+
+    # 4.2 Print the network configuration table (using tabulate as table)
     print(tabulate(table, stralign="center", tablefmt="fancy_grid", headers="firstrow"))
     print()
-    print(f'{green("[+] Please type help to view commands", "bold")}')
-    # print()
-    # print(f'{cyan("[TIP]", "bold")} You can use the {yellow("auto", "bold")} command to automate your process!')
+    # 4.3 (OPTIONAL) Print extra guidance and tips
+    print(green("[+] Please type help to view commands", "bold"))
+    print()
+    print(cyan("[TIP] You can use the ", "bold") + yellow("auto", "bold") + cyan(" command to automate your workflow!", "bold"))
     print()

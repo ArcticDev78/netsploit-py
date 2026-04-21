@@ -3,172 +3,84 @@
 """
 
 # Import required modules and libraries
-import datetime
-import os
-
-from simple_colors import blue, cyan, green, yellow
-from tabulate import tabulate
-
-from utils.config import DB, LOGS_FOLDER_PATH
-from utils.exit_program import exit_program
+from .base import BaseModule
+from utils.secure_utils import run_user_command, validate_ip_address, validate_hostname
+from utils.logging import LogManager
+from utils.config import Config
 from utils.font_styles import error_message, info_message, success_message
+from utils.colors import blue, cyan, green, yellow
 
 
-class PortScanner:
-    """Port Scanner class that uses nmap to scan for open ports on the target device"""
+class PortScanner(BaseModule):
+    """PortScanner module for scanning open ports on a target device."""
 
     def __init__(self):
         self.name = "port-scanner"
+        self.full_name = "Port Scanner"
         self.description = "Scan the target device for open ports"
         self.options = "TARGET"
+        self.requires_target = True
+        self.target = None
 
     def run(self, target=None):
-        """
-        `target` parameter is the IP address of the target device for which the scan will be run on
-        """
-        # TARGET = DB.get("TARGET")
-        if target is False:
-            error_message(
-                "Cannot run scan(s) without TARGET being specified. Please specify the TARGET and try again"
-            )
-        else:
-            info_message(
-                f"Running port scan on {target}, this may take up to two minutes"
-            )
-            print()
-            date = datetime.datetime.now()
-            formatted_time = date.strftime("%I-%M-%S_%p_%d-%b-%Y")
-            filename = f"port-scanner_log_{formatted_time}.txt"
-            os.system(
-                f'nmap -T4 {target} -sV -Pn -oN "{LOGS_FOLDER_PATH}port-scanner/{filename}"'
-            )
-            # os.system(f'nmap -T4 {TARGET} -sV -Pn')
-            print()
-            success_message(f"Finished scanning {target}")
-            print()
-            choice = input(
-                f'[{green(">", "bold")}] {cyan("Do you want to save the Port Scanner results to a log file? (y/n): ", "bold")}'
-            )
-            if choice == "y":
-                print()
-                success_message(
-                    f"Saved results to log file: {LOGS_FOLDER_PATH}port-scanner/{filename}"
-                )
-                print()
-            elif choice == "n":
-                os.system(f'rm "{LOGS_FOLDER_PATH}port-scanner/{filename}" -f')
-                print()
-                success_message("Did not save log file.")
-                print()
-            else:
-                error_message("Invalid option. Enter either y - YES or n - NO")
-            self.main()
-        self.main()
+        """Execute port scan on target."""
+        if target is None:
+            error_message("Target required for Port Scanner")
+            return
+
+        self.target = target
+
+        if not self._validate_target():
+            return
+
+        log_path = self._execute_core_logic()
+        self._handle_results(log_path)
 
     def main(self):
-        """Function which includes module prompt with all in-module commands"""
+        """Interactive prompt mode."""
+        self._show_module_header()
+        self.target = self._get_input("Target IP or hostname")
 
-        from utils.prompt import prompt
+        if not self._validate_target():
+            self._prompt_continue()
+            return
 
-        prompt_input = input(
-            f'{yellow("netsploit", "underlined")} => {blue("(port-scanner)", "bold")} {green(">")} '
-        )
-        prompt_input = prompt_input.lower()
+        log_path = self._execute_core_logic()
+        self._handle_results(log_path)
+        self._prompt_continue()
 
-        if prompt_input == "show options":
-            value = "(not set)" if DB.get("TARGET") is False else DB.get("TARGET")
-            # Table for displaying options and other info
-            table = [["OPTIONS", "VALUE", "OPTIONAL?"], ["TARGET", value, "no"]]
-            # Print the table
-            print(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
-            self.main()
+    def _validate_target(self, target=None):
+        """Validate target IP or hostname."""
+        target = target or self.target
+        if not (validate_ip_address(target) or validate_hostname(target)):
+            error_message(f'Invalid target "{target}"')
+            return False
+        return True
 
-        elif prompt_input.startswith("target =>") or prompt_input.startswith(
-            "set target"
-        ):
-            # split prompt_input from string to array
-            option_args = prompt_input.split()
-            # option is the second index (3rd string) in array
-            option = option_args[2]
-            # Set IP range to given option
-            DB.set("TARGET", option)
-            # Display success message like this: "IP_RANGE set to 192.168.0.1"
-            success_message(f'TARGET set to "{DB.get("TARGET")}"')
-            self.main()
+    def _execute_core_logic(self):
+        """Execute the port scanner nmap scan."""
+        info_message(f"Running port scan on {self.target}")
+        print()
 
-        elif prompt_input == "run":
-            TARGET = DB.get("TARGET")
-            if TARGET is False:
-                error_message(
-                    "Cannot run scan(s) without TARGET being specified. Please specify the TARGET and try again"
-                )
-                self.main()
-            else:
-                # info_message(
-                #     f"Running port scan on {TARGET}, this may take up to two minutes"
-                # )
-                # print()
-                # date = datetime.datetime.now()
-                # formatted_time = date.strftime("%I-%M-%S_%p_%d-%b-%Y")
-                # filename = f"port-scanner_log_{formatted_time}.txt"
-                # os.system(
-                #     f'nmap -T4 {TARGET} -sV -Pn -oN "{LOGS_FOLDER_PATH}port-scanner/{filename}"'
-                # )
-                # # os.system(f'nmap -T4 {TARGET} -sV -Pn')
-                # print()
-                # success_message(f"Finished scanning {TARGET}")
-                # print()
-                # choice = input(
-                #     f'[{green(">", "bold")}] {cyan("Do you want to save the Port Scanner results to a log file? (y/n): ", "bold")}'
-                # )
-                # if choice == "y":
-                #     # pwd = os.popen('pwd').read()
-                #     print()
-                #     success_message(
-                #         f"Saved results to log file: {LOGS_FOLDER_PATH}port-scanner/{filename}"
-                #     )
-                #     print()
-                # elif choice == "n":
-                #     os.system(f'rm "{LOGS_FOLDER_PATH}port-scanner/{filename}" -f')
-                #     print()
-                #     success_message("Did not save log file.")
-                #     print()
-                # else:
-                #     error_message("Invalid option. Enter either y - YES or n - NO")
-                # self.main()
-                self.run(TARGET)
-                self.main()
+        # Get log path only if logging is enabled
+        log_path = LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
 
-        elif prompt_input == "exit":
-            exit_program()
+        cmd_args = [
+            "nmap",
+            "-T4",
+            self.target,
+            "-sV",
+            "-Pn",
+        ]
+        if log_path:
+            cmd_args.extend(["-oN", str(log_path)])
 
-        elif prompt_input == "back":
-            prompt()
+        try:
+            run_user_command(cmd_args, timeout=300, use_shell=False, capture_output=False)
+        except Exception as e:
+            error_message(f"Port scan failed: {e}")
+            return None
 
-        elif prompt_input == "":
-            self.main()
-
-        elif prompt_input == "clear":
-            os.system("clear")
-            self.main()
-
-        elif prompt_input == "help":
-            print()
-            print(f'{cyan(f"Help for {self.name}:", ["bold", "underlined"])}')
-            print()
-            print(
-                f'[{yellow("Optional", "italic")}] See options that you can set using {yellow("show options", "bold")}'
-            )
-            print(
-                f'1. Set the target using {yellow("set TARGET 123.456.789", "bold")} or {yellow("TARGET => 123.456.789", "bold")} (make sure to replace 123.456.789 with the IP of your target!)'
-            )
-            print(f'2. Run your scan using {yellow("run", "bold")}')
-            print()
-            self.main()
-
-        else:
-            invalid_command = prompt_input.split()[0]
-            error_message(
-                f'Invalid command "{invalid_command}". Please enter a valid command'
-            )
-            self.main()
+        print()
+        success_message(f"Finished scanning {self.target}")
+        return log_path

@@ -1,152 +1,88 @@
-""" Vulnerability Scanner Module                                                    
-- Scan the target for potential vulnerabilities that can be exploited
+"""
+Vulnerability Scanner Module
+
+This module provides functionality to scan targets for potential vulnerabilities that can be exploited.
+It uses nmap with the nmap-vulners script to perform the scan.
 """
 
-# Import required modules and libraries
-import datetime
-import os
-
-from simple_colors import blue, cyan, green, yellow
-from tabulate import tabulate
-
-from utils.config import DB, LOGS_FOLDER_PATH
-from utils.exit_program import exit_program
+from .base import BaseModule
+from utils.secure_utils import run_user_command, validate_ip_address, validate_hostname
+from utils.logging import LogManager
+from utils.config import Config
 from utils.font_styles import error_message, info_message, success_message
 
 
-class VulnerabilityScanner:
-    """Vulnerability Scanner class with:
-    __init__() method providing module metadata,
-    run() method to be called in the Auto module, and
-    main() method which is the whole module with all its functions"""
+class VulnerabilityScanner(BaseModule):
+    """VulnerabilityScanner module for scanning targets for potential vulnerabilities."""
 
     def __init__(self):
-        self.name = "os-guesser"
-        self.description = "Guess the operating system running on a device"
+        self.name = "vuln-scanner"
+        self.full_name = "Vulnerability Scanner"
+        self.description = "Scan target for potential vulnerabilities"
         self.options = "TARGET"
+        self.requires_target = True
+        self.target = None
 
-    def run(self, target_param=None):
-        """
-        `target` parameter is the IP address of the target device for which the scan will be run on
-        """
+    def run(self, target=None):
+        """Execute vulnerability scan on target."""
+        if target is None:
+            error_message("Target required for Vulnerability Scanner")
+            return
 
-        if target_param is False:
-            error_message(
-                "Cannot run Vulnerability Scanner without TARGET being specified. Please specify the TARGET and try again"
-            )
-        else:
-            info_message(
-                f"Running Vulnerability scan on {target_param}, this may take up to two minutes"
-            )
-            # For logging
-            date = datetime.datetime.now()
-            formatted_time = date.strftime("%I-%M-%S_%p_%d-%b-%Y")
-            filename = f"vuln-scanner_log_{formatted_time}.txt"
-            print()
-            # os.system(f'nmap --script nmap-vulners/ -sV {TARGET}')
-            os.system(
-                f'nmap --script nmap-vulners/ -sV {target_param} -oN "{LOGS_FOLDER_PATH}vuln-scanner/{filename}" -Pn'
-            )
-            print()
-            # Ask the user if they want to save the scan results to a log file.
-            choice = input(
-                f'[{green(">", "bold")}] {cyan("Do you want to save the Vulnerability Scanner results to a log file? (y/n): ", "bold")}'
-            )
-            if choice == "y":  # If the user agrees, i.e. types "y":
-                # pwd = os.popen('pwd').read()  # For printing to success message
-                print()
-                # Print a success message stating the log has been saved.
-                success_message(
-                    f"Saved results to log file: {LOGS_FOLDER_PATH}vuln-scanner/{filename}"
-                )
-                print()
-            elif choice == "n":  # Else if the user disagrees, i.e. types "n":
-                os.system(
-                    f'rm "{LOGS_FOLDER_PATH}vuln-scanner/{filename}" -f'
-                )  # Delete the log file
-                print()
-                success_message("Did not save log file.")
-                print()
-            else:
-                # If the user types anything other than "y" or "n":
-                print()
-                error_message("Invalid option. Enter either y - YES or n - NO")
-                print()
-                os.system(
-                    f'rm "{LOGS_FOLDER_PATH}vuln-scanner/{filename}" -f'
-                )  # Delete the log file
-                # self.main()
-            success_message(f"Finished scanning {target_param}")
-            print()
+        self.target = target
+
+        if not self._validate_target():
+            return
+
+        log_path = self._execute_core_logic()
+        self._handle_results(log_path)
 
     def main(self):
-        """Method which includes module prompt with all in-module commands"""
-        from utils.prompt import custom_prompt, prompt
+        """Interactive prompt mode."""
+        self._show_module_header()
+        self.target = self._get_input("Target IP or hostname")
 
-        prompt_input = custom_prompt("vuln-scanner")
+        if not self._validate_target():
+            self._prompt_continue()
+            return
 
-        if prompt_input == "show options":
-            value = "(not set)" if DB.get("TARGET") is False else DB.get("TARGET")
-            # Table for displaying options and other info
-            table = [["OPTIONS", "VALUE", "OPTIONAL?"], ["TARGET", value, "no"]]
-            # Print the table
-            print(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
-            self.main()
+        log_path = self._execute_core_logic()
+        self._handle_results(log_path)
+        self._prompt_continue()
 
-        elif prompt_input.startswith("target =>") or prompt_input.startswith(
-            "set target"
-        ):
-            # Split `prompt_input` from string to array
-            option_args = prompt_input.split()
-            # Option is the second index (3rd string) in array
-            option = option_args[2]
-            # Set IP range to given option
-            DB.set("TARGET", option)
-            # Display success message
-            success_message(f'TARGET set to "{DB.get("TARGET")}"')
-            self.main()
+    def _validate_target(self, target=None):
+        """Validate target IP or hostname."""
+        target = target or self.target
+        if not (validate_ip_address(target) or validate_hostname(target)):
+            error_message(f'Invalid target "{target}"')
+            return False
+        return True
 
-        elif prompt_input == "run":
-            TARGET = DB.get("TARGET")
-            if TARGET is False:
-                error_message(
-                    "Cannot run Vulnerability Scanner without TARGET being specified. Please specify the TARGET and try again"
-                )
-                self.main()
-            else:
-                self.run(TARGET)
-                self.main()
+    def _execute_core_logic(self):
+        """Execute the vulnerability scanner nmap scan."""
+        info_message(f"Running Vulnerability scan on {self.target}")
+        print()
 
-        elif prompt_input == "exit":
-            exit_program()
+        # Get log path only if logging is enabled
+        log_path = LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
 
-        elif prompt_input == "back":
-            prompt()
+        cmd_args = [
+            "nmap",
+            "--script",
+            "nmap-vulners/",
+            "-sV",
+            self.target,
+            "-Pn",
+        ]
+        if log_path:
+            cmd_args.extend(["-oN", str(log_path)])
 
-        elif prompt_input == "":
-            self.main()
+        try:
+            run_user_command(cmd_args, timeout=300, use_shell=False, capture_output=False)
+        except Exception as e:
+            error_message(f"Vulnerability scan failed: {e}")
+            return None
 
-        elif prompt_input == "help":
-            print()
-            print(f'{cyan(f"Help for {self.name}:", ["bold", "underlined"])}')
-            print()
-            print(
-                f'[{yellow("Optional", "italic")}] See options that you can set using {yellow("show options", "bold")}'
-            )
-            print(
-                f'1. Set the target using {yellow("set TARGET 123.456.789", "bold")} or {yellow("TARGET => 123.456.789", "bold")} (make sure to replace 123.456.789 with the IP of your target!)'
-            )
-            print(f'2. Run your scan using {yellow("run", "bold")}')
-            print()
-            self.main()
-
-        elif prompt_input == "clear":
-            os.system("clear")
-            self.main()
-
-        else:
-            invalid_command = prompt_input.split()[0]
-            error_message(
-                f'Invalid command "{invalid_command}". Please enter a valid command'
-            )
-            self.main()
+        print()
+        success_message(f"Finished scanning {self.target}")
+        return log_path

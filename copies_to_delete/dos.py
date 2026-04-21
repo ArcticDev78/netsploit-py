@@ -84,52 +84,52 @@ class DoS(BaseModule):
 
         print()
         success_message(f"Finished attacking {self.target}")
-        # elif prompt_input == "run":
-        # self.execute_attack()
-    # elif prompt_input == "exit":
-    # exit_program()
-# elif prompt_input == "back":
-# return
-# elif prompt_input == "":
-# continue
-# elif prompt_input == "help":
-# self.show_help()
-# elif prompt_input == "clear":
-# safe_clear_screen()
-# else:
-# self.handle_invalid_command(prompt_input)
+            elif prompt_input == "run":
+                self.execute_attack()
+            elif prompt_input == "exit":
+                exit_program()
+            elif prompt_input == "back":
+                return
+            elif prompt_input == "":
+                continue
+            elif prompt_input == "help":
+                self.show_help()
+            elif prompt_input == "clear":
+                safe_clear_screen()
+            else:
+                self.handle_invalid_command(prompt_input)
 
-def show_options(self):
-    """Display the module options"""
-    value = get_target() or "(not set)"
-    table = [["OPTIONS", "VALUE", "OPTIONAL?"], ["TARGET", value, "no"]]
-    print(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
+    def show_options(self):
+        """Display the module options"""
+        value = get_target() or "(not set)"
+        table = [["OPTIONS", "VALUE", "OPTIONAL?"], ["TARGET", value, "no"]]
+        print(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
-def set_target(self, prompt_input):
-    """Set the target for the attack"""
-    option = prompt_input.split()[2]
-    set_target(option)
-    success_message(f'TARGET set to "{get_target()}"')
+    def set_target(self, prompt_input):
+        """Set the target for the attack"""
+        option = prompt_input.split()[2]
+        set_target(option)
+        success_message(f'TARGET set to "{get_target()}"')
 
-def execute_attack(self):
-    """Execute the DoS attack"""
-    target = get_target()
-    if not target:
-        error_message("Cannot run DoS attack without TARGET being specified. Please specify the TARGET and try again")
-    else:
-        self.run(target)
+    def execute_attack(self):
+        """Execute the DoS attack"""
+        target = get_target()
+        if not target:
+            error_message("Cannot run DoS attack without TARGET being specified. Please specify the TARGET and try again")
+        else:
+            self.run(target)
 
-def show_help(self):
-    """Display help information for the module"""
-    print()
-    print(f'{cyan(f"Help for {self.name}:", ["bold", "underlined"])}')
-    print()
-    print(f'[{yellow("Optional", "italic")}] See options that you can set using {yellow("show options", "bold")}')
-    print(f'1. Set the target using {yellow("set TARGET 123.456.789", "bold")} or {yellow("TARGET => 123.456.789", "bold")} (replace with target IP)')
-    print(f'2. Run your attack using {yellow("run", "bold")}')
-    print()
+    def show_help(self):
+        """Display help information for the module"""
+        print()
+        print(f'{cyan(f"Help for {self.name}:", ["bold", "underlined"])}')
+        print()
+        print(f'[{yellow("Optional", "italic")}] See options that you can set using {yellow("show options", "bold")}')
+        print(f'1. Set the target using {yellow("set TARGET 123.456.789", "bold")} or {yellow("TARGET => 123.456.789", "bold")} (replace with target IP)')
+        print(f'2. Run your attack using {yellow("run", "bold")}')
+        print()
 
-def handle_invalid_command(self, prompt_input):
-    """Handle invalid command inputs"""
-    invalid_command = prompt_input.split()[0]
-    error_message(f'Invalid command "{invalid_command}". Please enter a valid command')
+    def handle_invalid_command(self, prompt_input):
+        """Handle invalid command inputs"""
+        invalid_command = prompt_input.split()[0]
+        error_message(f'Invalid command "{invalid_command}". Please enter a valid command')

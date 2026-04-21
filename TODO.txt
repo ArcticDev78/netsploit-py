@@ -1,11 +1,5 @@
-- Implement Python-specific filesystem actions in logging
-- Remove the older imports in netsploit.py
-- Make all the modules use the `LOGS_ENABLED` value in config.py
-- Make the modules list command in `utils/prompt.py` into a separate util
-- Make the help command in `utils/prompt.py` into a separate util
-  - Make a function within it for the help command in modules
-- Make the CLI command used by each module as an item in __init__ method of each module
-- Make a __runmodule private method in `modules/auto.py` to reduce the excess lines in the code
-- Reorder the imports in __init__.py of `utils` and `modules` folders
-- Consider a proper way to keep `TARGET` in memory instead of using `pickledb`
-- Cleanup all the source code to remove redundant code/comments
+TODO: Implement Python-specific filesystem actions in logging
+TODO: Make all the modules use the `LOGS_ENABLED` value in config.py
+TODO: Make a function within it for the help command in modules
+TODO: Make a __runmodule private method in `modules/auto.py` to reduce the excess lines in the code
+TODO: Determine the best possible args to use for each module's command

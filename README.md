@@ -1,4 +1,5 @@
 # 📡 Netsploit
+
 ###### (Also known as `netsploit-py`)
 
 > #### This is a tool to help you use nmap and similar network tools easily and efficiently.
@@ -14,12 +15,15 @@
 -   As a user, you just need to run the `netsploit.py` file (instructions are given below), you don't need to touch any of the source code unless you want to.
 
 > [!NOTE]
-> - This is a work-in-progress project. Surely many things can be improved here and there, so feel free to open an issue about it.
-> - If something doesn't work on your platform, please feel free to open an issue about it.
-> - This project is made targeted for Linux platform. So there it might not work on other platforms. It might work on macOS with some changes.
+>
+> -   This is a work-in-progress project. Surely many things can be improved here and there, so feel free to open an issue about it.
+> -   If something doesn't work on your platform, please feel free to open an issue about it.
+> -   This project is made targeted for Linux platform. So there it might not work on other platforms. It might work on macOS with some changes.
 
 ## 📋 Modules:
+
 > ###### These are the "modules" you can use within Netsploit
+
 | No. | Command         | Description                                  |
 | --- | --------------- | -------------------------------------------- |
 | 1   | network-scanner | Find devices connected to the network        |
@@ -78,10 +82,10 @@ $ python3 netsploit.py
 ```
 
 2. Use either a module or the `auto` command:
-   - Use a module of your choice:
-       - Type `"use <module>"` to use a module (<module> is the name of the module to use)
-   - Use the `auto` command to automate the usage of `netsploit`:
-       - Type `auto` in the prompt and follow the prompts to complete your desired action(s).
+    - Use a module of your choice:
+        - Type `"use <module>"` to use a module (<module> is the name of the module to use)
+    - Use the `auto` command to automate the usage of `netsploit`:
+        - Type `auto` in the prompt and follow the prompts to complete your desired action(s).
 
 ---
 

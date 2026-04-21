@@ -2,7 +2,7 @@
 
 # Import required modules and libraries
 
-from simple_colors import cyan, green, yellow
+from utils.colors import cyan, green, yellow
 
 from modules.custom import custom
 from modules.device_info import DeviceInfo
@@ -16,9 +16,8 @@ from utils.font_styles import error_message, info_message, success_message
 
 
 class Auto:
-    """Auto class with:
-    __init__() method providing module metadata,
-    main() method which is the whole module with all its functions"""
+    """Automation module for NetSploit.
+    Provides __init__() for module metadata and main() for automation logic."""
 
     def __init__(self):
         self.name = "auto"
@@ -27,7 +26,7 @@ class Auto:
 
     def main(self):
         """Auto function to automate the usage of NetSploit"""
-        from utils.prompt import prompt
+        # from utils.prompt import prompt
 
         print()
         success_message("NetSploit is now running in auto mode")
@@ -153,7 +152,7 @@ class Auto:
 
             elif choice == "6":
                 print()
-                info_message(f'Selected {green("vuln-scannner", "bold")} module')
+                info_message(f'Selected {green("vuln-scanner", "bold")} module')
                 print(
                     """ \033[1;36m
         ╒═════════════════════════════════════════════════════════════════╕
