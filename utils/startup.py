@@ -5,7 +5,7 @@ from utils.colors import blue, cyan, green, yellow
 from tabulate import tabulate
 from utils.secure_utils import run_user_command
 
-__version__ = "0.8.7"
+__version__ = "1.0.0"
 
 HEADER = """
      __     _   __       _       _ _
