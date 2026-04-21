@@ -1,0 +1,5 @@
+TODO: Implement Python-specific filesystem actions in logging
+TODO: Make all the modules use the `LOGS_ENABLED` value in config.py
+TODO: Make a function within it for the help command in modules
+TODO: Make a __runmodule private method in `modules/auto.py` to reduce the excess lines in the code
+TODO: Determine the best possible args to use for each module's command
