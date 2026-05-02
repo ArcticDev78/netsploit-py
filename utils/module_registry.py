@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import importlib
 from types import ModuleType
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 # Mapping of CLI-name -> (python_module_path, attribute_name)
 # attribute_name is either the class name (e.g. "NetworkScanner") or a callable
@@ -50,6 +50,7 @@ MODULE_MAP: Dict[str, Tuple[str, str]] = {
     "ping": ("modules.ping", "Ping"),
     "vuln-scanner": ("modules.vuln_scanner", "VulnerabilityScanner"),
     "custom": ("modules.custom", "custom"),
+    "auto": ("modules.auto", "Auto"),
 }
 
 # Internal caches to avoid repeated imports/instantiation

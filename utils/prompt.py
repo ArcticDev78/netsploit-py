@@ -1,16 +1,18 @@
 """Main Prompt Module"""
 
-from typing import Any
-from utils.secure_utils import safe_clear_screen
+import readline  # noqa: F401
 import shutil
 import textwrap
+from typing import Any
+
+from tabulate import tabulate
 
 # from simple_colors import color  # Import the color function instead of individual colors
 from utils.colors import blue, green, yellow  # type: ignore
-from tabulate import tabulate
+from utils.secure_utils import safe_clear_screen
+
 # Avoid importing module classes at top-level (prevents circular imports).
 # Module classes will be loaded dynamically via `utils.module_registry` when needed.
-
 from .exit_program import exit_program
 from .font_styles import error_message, info_message
 from .help import Help
@@ -50,7 +52,7 @@ def prompt():
 
                     success, err = registry.run_module("shell")
                     if not success:
-                        error_message(err or f"Failed to run module shell")
+                        error_message(err or "Failed to run module shell")
                 except Exception as e:
                     error_message(f"Failed to run module shell: {e}")
             elif command == "auto":
@@ -60,7 +62,7 @@ def prompt():
 
                     success, err = registry.run_module("auto")
                     if not success:
-                        error_message(err or f"Failed to run module auto")
+                        error_message(err or "Failed to run module auto")
                 except Exception as e:
                     error_message(f"Failed to run module auto: {e}")
             else:

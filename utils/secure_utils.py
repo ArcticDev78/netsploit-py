@@ -11,34 +11,23 @@ commands in a safer way.
   sets a timeout and captures output by default.
 """
 
+import ipaddress
 import os
-import shutil
+import re
 import shlex
 import subprocess
-import ipaddress
-import re
-from typing import Union, List
+from typing import List, Union
 
 
 def safe_clear_screen() -> None:
-    """Safely clear the terminal screen.
+    """Safely clear the terminal screen using ANSI escape sequences.
 
-    Uses the platform to determine the right command. This is best-effort and
-    will not raise on failure.
+    Works on all modern terminals across Linux, macOS, and Windows Terminal.
+    No subprocess calls needed.
     """
     try:
-        if os.name == "nt":
-            # If detected operating system is Windows
-            subprocess.run("cls", shell=True, check=False)
-        else:
-            if shutil.which("clear"):
-                # Else, if detected operating system is Linux/MacOS
-                subprocess.run(["clear"], check=False)
-            else:
-                # fallback: attempt /usr/bin/clear
-                subprocess.run(["/usr/bin/clear"], check=False)
+        print("\033[2J\033[H", end="", flush=True)
     except Exception as e:
-        # Log the exception to the console for debugging purposes
         print(f"[netsploit] Warning: Failed to clear screen: {e}")
 
 
@@ -73,16 +62,18 @@ def validate_ip_range(ip_range: str, restrict_to_private: bool = True) -> bool:
         bool: True if valid IP range, False otherwise
     """
     try:
-        if '/' in ip_range:  # CIDR notation
+        if "/" in ip_range:  # CIDR notation
             network = ipaddress.ip_network(ip_range, strict=False)
             if restrict_to_private:
                 return network.is_private
             return True
-        elif '-' in ip_range:  # IP range
-            start_ip, end_ip = ip_range.split('-', 1)
+        elif "-" in ip_range:  # IP range
+            start_ip, end_ip = ip_range.split("-", 1)
             start = ipaddress.ip_address(start_ip.strip())
             end = ipaddress.ip_address(end_ip.strip())
-            if start >= end:
+            if type(start) is not type(end):
+                return False
+            if int(start) >= int(end):
                 return False
             if restrict_to_private:
                 return start.is_private and end.is_private
@@ -140,7 +131,7 @@ def validate_hostname(
         return False
 
     # Accept and strip trailing dot if present (fully qualified domain name)
-    if allow_trailing_dot and hostname.endswith('.'):
+    if allow_trailing_dot and hostname.endswith("."):
         hostname = hostname[:-1]
 
     if len(hostname) > 255:
@@ -149,10 +140,13 @@ def validate_hostname(
     # Convert Unicode hostnames to ASCII using IDNA if requested
     if allow_idn:
         try:
-            hostname = hostname.encode('idna').decode('ascii')
+            hostname = hostname.encode("idna").decode("ascii")
         except Exception as e:
             from utils.font_styles import error_message
-            error_message(f"Warning: Failed to encode hostname '{hostname}' with IDNA: {e}")
+
+            error_message(
+                f"Warning: Failed to encode hostname '{hostname}' with IDNA: {e}"
+            )
             return False
 
     # Build label regex
@@ -163,8 +157,8 @@ def validate_hostname(
 
     allowed = re.compile(label_re, re.IGNORECASE)
 
-    labels = hostname.split('.')
-    if any(len(l) == 0 for l in labels):
+    labels = hostname.split(".")
+    if any(len(label) == 0 for label in labels):
         return False
 
     return all(allowed.match(label) for label in labels)
@@ -194,7 +188,9 @@ def run_user_command(
     # If caller passed a list of args, use that directly. This avoids shlex.
     if isinstance(cmd, list):
         if use_shell:
-            raise ValueError("use_shell=True with a list cmd is not supported; pass a string when use_shell=True")
+            raise ValueError(
+                "use_shell=True with a list cmd is not supported; pass a string when use_shell=True"
+            )
         args = [str(x) for x in cmd]
         return subprocess.run(
             args,
@@ -229,3 +225,18 @@ def run_user_command(
         capture_output=capture_output,
         text=True,
     )
+
+
+def get_privilege_prefix() -> List[str]:
+    """Return the privilege-escalation prefix appropriate for the current OS.
+
+    Returns ``['sudo']`` on Linux/macOS and ``[]`` on Windows so callers can
+    unconditionally prepend the result to a command argument list without
+    hardcoding platform checks everywhere.
+
+    On Windows, run the program as Administrator for equivalent privileges.
+
+    Returns:
+        List[str]: ['sudo'] on Unix/macOS, [] on Windows
+    """
+    return [] if os.name == "nt" else ["sudo"]
