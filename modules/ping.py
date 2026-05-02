@@ -42,30 +42,28 @@ class Ping(BaseModule):
 
     def main(self):
         """Interactive prompt mode."""
-        from utils.prompt import prompt
-
         print(f"{yellow('netsploit', 'underlined')} => {blue('(ping)', 'bold')}\n")
         print(
             f"{yellow('Ping modes:', ['bold', 'underlined'])}\n"
             f"1. {cyan('ping', 'bold')} [Basic - OS-Provided]\n"
             f"2. {cyan('nping', 'bold')} [Advanced - Nmap-provided]\n"
         )
-        pingmode = input(
-            f"[{green('>', 'bold')}] {cyan('Enter ping mode to use: ', 'bold')}"
-        ).lower()
+        while True:
+            pingmode = input(
+                f"[{green('>', 'bold')}] {cyan('Enter ping mode to use: ', 'bold')}"
+            ).lower()
 
-        if pingmode in ("ping", "1"):
-            self._ping_interactive()
-            prompt()
-        elif pingmode in ("nping", "2"):
-            self._nping_interactive()
-            prompt()
-        else:
-            print()
-            error_message(
-                f'Invalid option: "{pingmode}", please enter either "ping" or "nping" as per your needs.\n'
-            )
-            self.main()
+            if pingmode in ("ping", "1"):
+                self._ping_interactive()
+                return
+            elif pingmode in ("nping", "2"):
+                self._nping_interactive()
+                return
+            else:
+                print()
+                error_message(
+                    f'Invalid option: "{pingmode}", please enter either "ping" or "nping" as per your needs.\n'
+                )
 
     # ------------------------------------------------------------------
     # Private helpers

@@ -50,31 +50,33 @@ class OuiLookup(BaseModule):
             return None
 
         oui_file_path = Config.OUI_FILE_PATH
-        # Get log path only if logging is enabled
         log_path = (
             LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
         )
 
-        # First check if OUI exists in file
-        with open(oui_file_path) as f:
-            if self.query not in f.read():
-                error_message(
-                    f"Could not find OUI {cyan(self.query, 'bold')} in database."
-                )
-                print()
-                return None
+        # Single-pass: iterate line by line so the entire file is never loaded
+        # into memory at once, and we don't need to read it twice.
+        results = []
+        try:
+            with open(oui_file_path, "r") as source_file:
+                for line in source_file:
+                    if self.query in line:
+                        results.append(line)
+        except OSError as e:
+            error_message(f"Could not read OUI database: {e}")
+            return None
+
+        if not results:
+            error_message(f"Could not find OUI {cyan(self.query, 'bold')} in database.")
+            print()
+            return None
 
         print()
         success_message(f"Found OUI {cyan(self.query, 'bold')} in database!")
         print()
 
-        # Search and log results
-        results = []
-        with open(oui_file_path, "r") as source_file:
-            for line in source_file:
-                if self.query in line:
-                    print(f"[{green('✓', 'bold')}] {yellow(line, 'bold')}")
-                    results.append(line)
+        for line in results:
+            print(f"[{green('✓', 'bold')}] {yellow(line, 'bold')}")
 
         # Write results to log if logging enabled
         if log_path:

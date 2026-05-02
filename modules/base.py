@@ -5,18 +5,14 @@ Provides a standardized base class for all Netsploit modules.
 Subclasses should implement at least `run()` / `main()` and `_execute_core_logic()`.
 This file centralizes prompt helpers, input validation helpers and logging handling.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
-# Prefer the project's color helpers if available
-try:
-    from simple_colors import blue, cyan, green, yellow  # type: ignore
-except Exception:  # pragma: no cover - fallback when simple_colors not installed
-    blue = cyan = green = yellow = lambda text, *args, **kwargs: text
-
+from utils.colors import blue, cyan, green, yellow
 from utils.font_styles import error_message
 from utils.logging import LogManager
 
@@ -62,7 +58,9 @@ class BaseModule(ABC):
     def _show_module_header(self) -> None:
         """Print a simple, consistent module header."""
         print()
-        print(f"{yellow('netsploit', 'underlined')} => {blue(f'({self.name})', 'bold')}\n")
+        print(
+            f"{yellow('netsploit', 'underlined')} => {blue(f'({self.name})', 'bold')}\n"
+        )
 
     def _validate_target(self, target: Optional[str] = None) -> bool:
         """Default target validation: ensure the target is provided when required.
@@ -104,25 +102,28 @@ class BaseModule(ABC):
                 error_message(f"Error handling log file: {e}")
 
     def _prompt_continue(self) -> None:
-        """Return to the main prompt in a safe way."""
-        try:
-            from utils.prompt import prompt
+        """Signal that this module is done; control returns to the main prompt loop.
 
-            prompt()
-        except Exception as e:
-            from utils.font_styles import error_message
-            error_message(f"Warning: Failed to return to main prompt: {e}")
-            return
+        The main prompt runs in a ``while True`` loop, so simply returning from the
+        module's ``main()`` is sufficient to get back to the prompt. Calling
+        ``prompt()`` here would push an extra stack frame on every ``use`` command
+        and would eventually cause a RecursionError after enough module invocations.
+        """
+        return
 
     def _get_bool_input(self, prompt_text: str) -> bool:
-        """Ask user a yes/no question and return True for 'y', False for 'n'."""
-        response = input(f"[{green('>', 'bold')}] {cyan(prompt_text, 'bold')} [y/n]: ").lower().strip()
-        if response == 'y':
-            return True
-        if response == 'n':
-            return False
-        error_message(f'Invalid option "{response}". Please enter y or n.')
-        return self._get_bool_input(prompt_text)
+        """Ask the user a yes/no question; re-prompt on invalid input."""
+        while True:
+            response = (
+                input(f"[{green('>', 'bold')}] {cyan(prompt_text, 'bold')} [y/n]: ")
+                .lower()
+                .strip()
+            )
+            if response == "y":
+                return True
+            if response == "n":
+                return False
+            error_message(f'Invalid option "{response}". Please enter y or n.')
 
     def _get_input(self, prompt_text: str, required: bool = True) -> str:
         """Prompt the user for input, optionally re-prompting until non-empty.
@@ -130,8 +131,10 @@ class BaseModule(ABC):
         Returns the entered string (may be empty if not required).
         """
         while True:
-            user_input = input(f"[{green('>', 'bold')}] {cyan(prompt_text, 'bold')}: ").strip()
+            user_input = input(
+                f"[{green('>', 'bold')}] {cyan(prompt_text, 'bold')}: "
+            ).strip()
             if required and not user_input:
-                error_message('Input is required. Please try again.')
+                error_message("Input is required. Please try again.")
                 continue
             return user_input

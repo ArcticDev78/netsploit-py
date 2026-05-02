@@ -25,8 +25,6 @@ class Auto:
 
     def main(self):
         """Auto function to automate the usage of NetSploit"""
-        from utils.prompt import prompt
-
         print()
         success_message("NetSploit is now running in auto mode")
         # 1) Scan network for devices on which the module of choice can be executed
@@ -72,7 +70,7 @@ class Auto:
                 DeviceInfo().run(target_device)
                 info_message("Exited auto mode")
                 print()
-                prompt()
+                return
 
             elif choice == "2":
                 print()
@@ -92,7 +90,7 @@ class Auto:
                 OSGuesser().run(target_device)
                 info_message("Exited auto mode")
                 print()
-                prompt()
+                return
 
             elif choice == "3":
                 print()
@@ -110,7 +108,7 @@ class Auto:
                 PortScanner().run(target_device)
                 info_message("Exited auto mode")
                 print()
-                prompt()
+                return
 
             elif choice == "4":
                 print()
@@ -128,7 +126,7 @@ class Auto:
                 DoS().run(target_device)
                 info_message("Exited auto mode")
                 print()
-                prompt()
+                return
 
             elif choice == "5":
                 print()
@@ -147,7 +145,7 @@ class Auto:
                 Ping().run(target_device)
                 info_message("Exited auto mode.")
                 print()
-                prompt()
+                return
 
             elif choice == "6":
                 print()
@@ -166,7 +164,7 @@ class Auto:
                 VulnerabilityScanner().run(target_device)
                 info_message("Exited auto mode.")
                 print()
-                prompt()
+                return
 
             elif choice == "7":
                 print()
@@ -175,10 +173,10 @@ class Auto:
                 custom()
                 info_message("Exited auto mode.")
                 print()
-                prompt()
+                return
+
             else:
                 error_message("Error: you did not provide a valid scan / attack.")
 
         else:
             error_message("Error: you did not provide a target device IP.")
-            prompt()

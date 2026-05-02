@@ -19,12 +19,15 @@ The configuration can be modified by changing the class attributes directly
 in this file or by subclassing Config in other modules if needed.
 """
 
-# Import required library for configuring paths
 from pathlib import Path
 
 
-# Config class to store and access all NetSploit program configuration options
 class Config:
+    # Resolve the project root relative to this file so that paths are correct
+    # regardless of which directory the user runs netsploit.py from.
+    # Layout: <project_root>/utils/config.py  →  parent.parent = project root
+    _PROJECT_ROOT: Path = Path(__file__).parent.parent
+
     # 1) Logging Configuration
 
     # a) Enable/Disable Logs
@@ -47,10 +50,10 @@ class Config:
     """
 
     # c) Path to Logs Folder
-    LOGS_FOLDER_PATH: Path = Path.cwd() / "logs"
+    LOGS_FOLDER_PATH: Path = _PROJECT_ROOT / "logs"
     """
     Path to the folder where log files will be stored.
-    Defaults to a 'logs' subdirectory in the current working directory.
+    Anchored to the project root so it works regardless of the working directory.
     """
 
     # 2) OUI (Organizationally Unique Identifier) Configuration
@@ -60,8 +63,8 @@ class Config:
     """Filename of the OUI database file."""
 
     # b) Path to OUI File
-    OUI_FILE_PATH: Path = Path.cwd() / "resources" / OUI_FILENAME
+    OUI_FILE_PATH: Path = _PROJECT_ROOT / "resources" / OUI_FILENAME
     """
     Full path to the OUI database file.
-    Defaults to a file named 'oui.txt' in the 'resources' subdirectory of the project root.
+    Anchored to the project root so it works regardless of the working directory.
     """

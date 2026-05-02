@@ -33,9 +33,9 @@ import os
 from pathlib import Path
 from typing import Optional
 
+from utils.colors import cyan, green
 from utils.config import Config
 from utils.font_styles import error_message, success_message
-from utils.colors import cyan, green
 
 
 class LogManager:
@@ -94,7 +94,7 @@ class LogManager:
             return None
 
         # Generate timestamped filename
-        timestamp = datetime.datetime.now().strftime("%I-%M-%S_%p_%d-%b-%Y")
+        timestamp = datetime.datetime.now().strftime("%H-%M-%S-%f_%d-%b-%Y")
         filename = f"{module_name}_log_{timestamp}.txt"
 
         # Build full path
@@ -141,6 +141,13 @@ class LogManager:
             LogManager._prompt_save_or_delete(module_fullname, log_path)
             return
 
+        # Unknown mode: warn and keep the file so data is not silently lost
+        error_message(
+            f'Unknown LOGS_MODE "{Config.LOGS_MODE}". '
+            f'Expected "PROMPT", "AUTOMATIC", or "DISABLED". '
+            f"Log file kept at: {log_path}"
+        )
+
     @staticmethod
     def _prompt_save_or_delete(module_fullname: str, log_path: Path) -> None:
         """
@@ -150,21 +157,23 @@ class LogManager:
             module_fullname (str): Full name of the module
             log_path (Path): Path to the log file
         """
-        log_choice = input(
-            f"[{green('>', 'bold')}] {cyan(f'Do you want to save the {module_fullname} results to a log file? (y/n): ', 'bold')}"
-        ).lower()
+        while True:
+            log_choice = input(
+                f"[{green('>', 'bold')}] {cyan(f'Do you want to save the {module_fullname} results to a log file? (y/n): ', 'bold')}"
+            ).lower()
 
-        if log_choice in ("y", "yes"):
-            print()
-            success_message(f"Saved results to log file: {log_path}")
-            print()
-        elif log_choice in ("n", "no"):
-            LogManager._delete_log(log_path)
-        else:
-            print()
-            error_message('Invalid option. Please enter "y" for YES or "n" for NO.')
-            print()
-            LogManager._delete_log(log_path)
+            if log_choice in ("y", "yes"):
+                print()
+                success_message(f"Saved results to log file: {log_path}")
+                print()
+                return
+            elif log_choice in ("n", "no"):
+                LogManager._delete_log(log_path)
+                return
+            else:
+                print()
+                error_message('Invalid option. Please enter "y" for YES or "n" for NO.')
+                print()
 
     @staticmethod
     def _delete_log(log_path: Path) -> None:

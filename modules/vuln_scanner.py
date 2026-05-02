@@ -75,7 +75,7 @@ class VulnerabilityScanner(BaseModule):
         cmd_args = [
             "nmap",
             "--script",
-            "nmap-vulners/",
+            "vulners",
             "-sV",
             self.target,
             "-Pn",

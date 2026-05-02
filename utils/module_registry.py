@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import importlib
 from types import ModuleType
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 # Mapping of CLI-name -> (python_module_path, attribute_name)
 # attribute_name is either the class name (e.g. "NetworkScanner") or a callable

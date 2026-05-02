@@ -88,7 +88,7 @@ class NetworkScanner(BaseModule):
             self._prompt_continue()
             return
 
-        self._run_network_scan(ip_range)
+        self._run_network_scan()
         self._prompt_continue()
 
     def _get_local_ip_range(self) -> str | None:
@@ -105,6 +105,6 @@ class NetworkScanner(BaseModule):
             error_message(f"Error determining network range: {e}")
         return None
 
-    def _run_network_scan(self, ip_range: str) -> None:
+    def _run_network_scan(self) -> None:
         """Run the nmap network scan and handle logging."""
         self._execute_core_logic(interactive=True)

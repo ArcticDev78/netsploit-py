@@ -10,7 +10,10 @@ Classes:
 from tabulate import tabulate
 
 # Use safe color wrappers from utils.colors to avoid hard dependency on simple-colors
-from utils.colors import blue as color_blue, cyan as color_cyan, green as color_green, yellow as color_yellow
+from utils.colors import blue as color_blue
+from utils.colors import cyan as color_cyan
+from utils.colors import green as color_green
+from utils.colors import yellow as color_yellow
 
 
 class Help:
@@ -42,6 +45,10 @@ class Help:
             (
                 f"{color_yellow('use', 'bold')} <module>",
                 color_green("Select a module to use", "italic"),
+            ),
+            (
+                color_yellow("auto", "bold"),
+                color_green("Automate modules on a target device", "italic"),
             ),
             (
                 color_yellow("modules", "bold"),

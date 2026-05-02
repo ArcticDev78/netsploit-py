@@ -37,24 +37,15 @@ def startup():
 
     # 3. Set variables for printing network configuration table
 
-    # 3.1 Get the network gateway IP (router) — cross-platform via netifaces
+    # 3.1 & 3.2 Get gateway and interface in a single netifaces call
     try:
-        gateways = netifaces.gateways()
-        default_gw = gateways.get("default", {})
-        if netifaces.AF_INET in default_gw:
-            network_gateway = default_gw[netifaces.AF_INET][0]
+        _gw_data = netifaces.gateways()
+        _default_gw = _gw_data.get("default", {})
+        if netifaces.AF_INET in _default_gw:
+            network_gateway = _default_gw[netifaces.AF_INET][0]
+            network_interface = _default_gw[netifaces.AF_INET][1]
         else:
             network_gateway = ""
-    except Exception:
-        network_gateway = ""
-
-    # 3.2 Get the current network interface — cross-platform via netifaces
-    try:
-        gateways = netifaces.gateways()
-        default_gw = gateways.get("default", {})
-        if netifaces.AF_INET in default_gw:
-            network_interface = default_gw[netifaces.AF_INET][1]
-        else:
             # Fallback: first non-loopback interface that is up
             network_interface = ""
             for iface, stats in psutil.net_if_stats().items():
@@ -66,6 +57,7 @@ def startup():
                     network_interface = iface
                     break
     except Exception:
+        network_gateway = ""
         network_interface = ""
 
     # 3.3 Get wireless network name (SSID) — platform-specific, best-effort
