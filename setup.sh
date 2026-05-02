@@ -1,34 +1,36 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# setup.sh — Run this once after cloning to prepare your environment.
+# After setup, launch netsploit with: python3 netsploit.py
 
 set -e  # Exit on error
 
 # Colors for output (using ANSI codes, no external dependency)
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'  # No Color
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[1;33m'
+BLUE=$'\033[0;34m'
+NC=$'\033[0m'  # No Color
 
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Helper functions
 print_header() {
-    echo -e "${BLUE}═══════════════════════════════════════${NC}"
-    echo -e "${BLUE}$1${NC}"
-    echo -e "${BLUE}═══════════════════════════════════════${NC}"
+    echo "${BLUE}═══════════════════════════════════════${NC}"
+    echo "${BLUE}$1${NC}"
+    echo "${BLUE}═══════════════════════════════════════${NC}"
 }
 
 print_ok() {
-    echo -e "${GREEN}[✓]${NC} $1"
+    echo "${GREEN}[✓]${NC} $1"
 }
 
 print_warn() {
-    echo -e "${YELLOW}[!]${NC} $1"
+    echo "${YELLOW}[!]${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}[✗]${NC} $1"
+    echo "${RED}[✗]${NC} $1"
 }
 
 # Check Python installation
@@ -43,58 +45,48 @@ check_python() {
         print_error "Python 3 is not installed"
         echo "Please install Python 3.8 or higher:"
         echo "  Ubuntu/Debian: sudo apt-get install python3 python3-pip python3-venv"
-        echo "  Fedora: sudo dnf install python3 python3-pip"
-        echo "  macOS: brew install python3"
-        echo "  Windows: Download from https://www.python.org/downloads/"
+        echo "  Fedora:        sudo dnf install python3 python3-pip"
+        echo "  macOS:         brew install python3"
+        echo "  Windows:       https://www.python.org/downloads/"
         return 1
     fi
 }
 
-# Check system dependencies
+# Check system dependencies (nmap, hping3)
 check_system_deps() {
     print_header "Checking System Dependencies"
 
     local missing_deps=()
 
-    # Check nmap
+    # Check nmap (required for most scanning modules)
     if command -v nmap &> /dev/null; then
         NMAP_VERSION=$(nmap --version 2>&1 | head -1)
         print_ok "nmap found: $NMAP_VERSION"
     else
-        print_warn "nmap is not installed"
+        print_warn "nmap is not installed (required for all scan modules)"
         missing_deps+=("nmap")
     fi
 
-    # Check hping3
+    # Check hping3 (only used by the DoS module; Linux/macOS only)
     if command -v hping3 &> /dev/null; then
         print_ok "hping3 found"
     else
-        print_warn "hping3 is not installed"
+        print_warn "hping3 is not installed (only needed for the DoS module — Linux/macOS only)"
         missing_deps+=("hping3")
     fi
 
-    # Check ip command (iproute2)
-    if command -v ip &> /dev/null; then
-        print_ok "ip (iproute2) found"
-    else
-        print_warn "ip command (iproute2) is not installed"
-        missing_deps+=("iproute2")
-    fi
-
-    # Report missing deps
+    # Report missing deps with platform-appropriate install instructions
     if [ ${#missing_deps[@]} -gt 0 ]; then
         echo ""
-        print_warn "The following system dependencies are missing:"
-        for dep in "${missing_deps[@]}"; do
-            echo "  - $dep"
-        done
+        print_warn "Missing system dependencies: ${missing_deps[*]}"
         echo ""
         echo "Installation instructions:"
-        echo "  Ubuntu/Debian: sudo apt-get install nmap hping3 iproute2"
-        echo "  Fedora: sudo dnf install nmap hping3 iproute2"
-        echo "  macOS: brew install nmap hping3 iproute2"
+        echo "  Ubuntu/Debian: sudo apt-get install nmap hping3"
+        echo "  Fedora:        sudo dnf install nmap hping3"
+        echo "  macOS:         brew install nmap hping3"
+        echo "  Windows:       https://nmap.org/download.html  (hping3 not available on Windows)"
         echo ""
-        read -p "Continue without these tools? (y/n) " -n 1 -r
+        read -p "Continue setup without these tools? (y/n) " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
             return 1
@@ -104,21 +96,20 @@ check_system_deps() {
     return 0
 }
 
-# Setup Python virtual environment (mandatory)
+# Setup Python virtual environment
 setup_venv() {
     print_header "Setting Up Python Virtual Environment"
 
     if [ -d "$SCRIPT_DIR/.venv" ]; then
         print_ok "Virtual environment already exists"
-        source "$SCRIPT_DIR/.venv/bin/activate"
-        print_ok "Virtual environment activated"
-        return 0
+    else
+        print_warn "Creating virtual environment..."
+        python3 -m venv "$SCRIPT_DIR/.venv"
+        print_ok "Virtual environment created"
     fi
 
-    print_warn "Creating virtual environment..."
-    python3 -m venv "$SCRIPT_DIR/.venv"
     source "$SCRIPT_DIR/.venv/bin/activate"
-    print_ok "Virtual environment created and activated"
+    print_ok "Virtual environment activated"
     return 0
 }
 
@@ -144,7 +135,6 @@ setup_log_dirs() {
 
     LOG_DIR="$SCRIPT_DIR/logs"
 
-    # Create main log directory if it doesn't exist
     if [ ! -d "$LOG_DIR" ]; then
         mkdir -p "$LOG_DIR"
         print_ok "Created logs directory: $LOG_DIR"
@@ -152,7 +142,6 @@ setup_log_dirs() {
         print_ok "Logs directory already exists: $LOG_DIR"
     fi
 
-    # Create subdirectories for each module
     local module_dirs=(
         "device-info"
         "os-guesser"
@@ -168,58 +157,48 @@ setup_log_dirs() {
         mkdir -p "$LOG_DIR/$module_dir"
     done
 
-    print_ok "Log directories are ready"
+    print_ok "Log subdirectories are ready"
     return 0
-}
-
-# Run the application
-run_app() {
-    print_header "Starting NetSploit"
-    echo ""
-    cd "$SCRIPT_DIR"
-    python3 netsploit.py
 }
 
 # Main execution
 main() {
     echo ""
-    print_header "NetSploit Pre-Run Setup"
+    print_header "NetSploit Setup"
     echo ""
 
-    # Check Python
     if ! check_python; then
         return 1
     fi
     echo ""
 
-    # Check system dependencies
     if ! check_system_deps; then
         return 1
     fi
     echo ""
 
-    # Setup venv
-    setup_venv
+    if ! setup_venv; then
+        return 1
+    fi
     echo ""
 
-    # Install pip dependencies
     if ! install_pip_deps; then
         return 1
     fi
     echo ""
 
-    # Setup log directories
     if ! setup_log_dirs; then
         return 1
     fi
-    echo ""
 
-    # Run the application
-    print_header "Ready to Launch"
     echo ""
-    run_app
+    print_header "Setup Complete"
+    echo ""
+    echo "  ${GREEN}To run netsploit:${NC}"
+    echo ""
+    echo "    ${YELLOW}source .venv/bin/activate${NC}"
+    echo "    ${YELLOW}python3 netsploit.py${NC}"
+    echo ""
 }
 
-# Run main function
 main
-

@@ -2,11 +2,13 @@
 This module uses nmap to scan and find devices connected to the network.
 """
 
-from utils.colors import cyan, green, yellow
+import netifaces  # type: ignore[import-untyped]
+
+from utils.colors import yellow
 from utils.config import Config
 from utils.font_styles import error_message, info_message, success_message
 from utils.logging import LogManager
-from utils.secure_utils import run_user_command
+from utils.secure_utils import get_privilege_prefix, run_user_command
 
 from .base import BaseModule
 
@@ -46,7 +48,7 @@ class NetworkScanner(BaseModule):
         )
 
         try:
-            cmd_args = ["sudo", "nmap", "-sn", "-T4", ip_range]
+            cmd_args = get_privilege_prefix() + ["nmap", "-sn", "-T4", ip_range]
             if log_path:
                 cmd_args.extend(["-oN", str(log_path)])
 
@@ -90,23 +92,17 @@ class NetworkScanner(BaseModule):
         self._prompt_continue()
 
     def _get_local_ip_range(self) -> str | None:
-        """Get the IP address range of the local network."""
+        """Get the IP address range of the local network using Python (cross-platform)."""
         try:
-            cp = run_user_command(
-                "ip route show", timeout=5, use_shell=False, capture_output=True
-            )
-            stdout = cp.stdout or ""
-            for line in stdout.splitlines():
-                if line.startswith("default via"):
-                    parts = line.split()
-                    if len(parts) >= 3:
-                        gateway = parts[2]
-                        ip_parts = gateway.split(".")
-                        if len(ip_parts) == 4:
-                            network = ".".join(ip_parts[:3]) + ".0/24"
-                            return network
+            gateways = netifaces.gateways()
+            default_gw = gateways.get("default", {})
+            if netifaces.AF_INET in default_gw:
+                gateway_ip = default_gw[netifaces.AF_INET][0]
+                parts = gateway_ip.split(".")
+                if len(parts) == 4:
+                    return ".".join(parts[:3]) + ".0/24"
         except Exception as e:
-            error_message(f"Error parsing network information: {e}")
+            error_message(f"Error determining network range: {e}")
         return None
 
     def _run_network_scan(self, ip_range: str) -> None:

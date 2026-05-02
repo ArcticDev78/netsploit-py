@@ -1,10 +1,12 @@
-""" Shell (CLI) Command Runner """
+"""Shell (CLI) Command Runner"""
 
 # Import required modules and libraries
+import subprocess
+from pathlib import Path
+
+from utils.font_styles import error_message, success_message
+
 from .base import BaseModule
-from utils.secure_utils import run_user_command
-from utils.colors import green, cyan
-from utils.font_styles import success_message
 
 
 class Shell(BaseModule):
@@ -21,7 +23,6 @@ class Shell(BaseModule):
     def run(self, command=None):
         """Execute shell command."""
         if command is None:
-            from utils.font_styles import error_message
             error_message("Command required")
             return
 
@@ -36,17 +37,21 @@ class Shell(BaseModule):
         self._prompt_continue()
 
     def _execute_core_logic(self):
-        """Execute the shell command."""
+        """Execute the shell command in the user's home directory.
+
+        Uses subprocess.run with cwd=Path.home() for cross-platform home
+        directory resolution instead of 'cd ~' which is Unix-specific.
+        """
         success_message(f'Running shell command "{self.command}"')
         print()
 
-        working_dir = "~"
-        cmd = f"cd {working_dir} && {self.command}"
-
         try:
-            run_user_command(cmd, use_shell=True, timeout=120, capture_output=False)
+            subprocess.run(
+                self.command or "",
+                shell=True,
+                cwd=Path.home(),
+            )
         except Exception as e:
-            from utils.font_styles import error_message
             error_message(f"Command failed: {e}")
 
         print()

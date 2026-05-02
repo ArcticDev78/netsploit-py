@@ -3,6 +3,8 @@
   to make the system unresponsive to legitimate traffic
 """
 
+import platform
+
 from utils.colors import cyan, yellow
 from utils.font_styles import error_message, info_message, success_message
 from utils.secure_utils import run_user_command, validate_hostname, validate_ip_address
@@ -89,6 +91,13 @@ class DoS(BaseModule):
 
     def _execute_core_logic(self):
         """Execute the DoS attack."""
+        if platform.system() == "Windows":
+            error_message(
+                "The DoS module relies on hping3, which is not available on Windows. "
+                "This module only works on Linux and macOS."
+            )
+            return
+
         info_message(f"Running DoS attack on {self.target}")
         info_message(
             "Running a DoS attack properly requires the command to be run using sudo"

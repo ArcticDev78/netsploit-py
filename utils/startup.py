@@ -1,6 +1,11 @@
 """STARTUP"""
 
 # Import required libraries for startup messages
+import platform
+import socket
+
+import netifaces  # type: ignore[import-untyped]
+import psutil  # type: ignore[import-untyped]
 from tabulate import tabulate
 
 from utils.colors import blue, cyan, green, yellow
@@ -31,87 +36,110 @@ def startup():
     print(blue(" => 5 Scanners, 3 Info and 1 Attack Module", "bold"))
 
     # 3. Set variables for printing network configuration table
-    # 3.1 Get the network gateway IP (router)
+
+    # 3.1 Get the network gateway IP (router) — cross-platform via netifaces
     try:
-        cp = run_user_command(
-            "ip route show", timeout=5, use_shell=False, capture_output=True
-        )
-        stdout = cp.stdout or ""
+        gateways = netifaces.gateways()
+        default_gw = gateways.get("default", {})
+        if netifaces.AF_INET in default_gw:
+            network_gateway = default_gw[netifaces.AF_INET][0]
+        else:
+            network_gateway = ""
+    except Exception:
         network_gateway = ""
-        for line in stdout.splitlines():
-            if line.startswith("default via"):
-                parts = line.split()
-                if len(parts) >= 3:
-                    network_gateway = parts[2]
+
+    # 3.2 Get the current network interface — cross-platform via netifaces
+    try:
+        gateways = netifaces.gateways()
+        default_gw = gateways.get("default", {})
+        if netifaces.AF_INET in default_gw:
+            network_interface = default_gw[netifaces.AF_INET][1]
+        else:
+            # Fallback: first non-loopback interface that is up
+            network_interface = ""
+            for iface, stats in psutil.net_if_stats().items():
+                if (
+                    stats.isup
+                    and iface not in ("lo", "loopback")
+                    and not iface.startswith("loop")
+                ):
+                    network_interface = iface
                     break
     except Exception:
-        network_gateway = ""
-
-    # 3.2 Get the current network interface being used
-    try:
-        cp = run_user_command(
-            ["ip", "-o", "link"], timeout=5, use_shell=False, capture_output=True
-        )
-        stdout = cp.stdout or ""
-        network_interface = ""
-        # pick first non-loopback interface name
-        for line in stdout.splitlines():
-            parts = line.split()
-            if len(parts) >= 2 and not parts[1].startswith("lo"):
-                network_interface = parts[1].rstrip(":")
-                break
-    except Exception:
         network_interface = ""
 
-    # 3.3 Get wireless network name
-
-    # Previously used method to get SSID; Works on Linux distros except for Fedora
-    # network_name = os.popen('iwgetid -r').read()
-
-    # Work-around method for Fedora Linux  to get SSID
+    # 3.3 Get wireless network name (SSID) — platform-specific, best-effort
     try:
-        cp = run_user_command(
-            ["nmcli", "-t", "-f", "NAME", "connection", "show", "--active"],
-            timeout=5,
-            use_shell=False,
-            capture_output=True,
-        )
-        network_name = (cp.stdout or "").strip()
+        system = platform.system()
+        if system == "Linux":
+            cp = run_user_command(
+                ["nmcli", "-t", "-f", "NAME", "connection", "show", "--active"],
+                timeout=5,
+                use_shell=False,
+                capture_output=True,
+            )
+            stdout = (cp.stdout or "").strip()
+            network_name = stdout.splitlines()[0] if stdout else ""
+        elif system == "Darwin":
+            try:
+                # CoreWLAN is the modern API for Wi-Fi info on macOS (Monterey+).
+                # Requires: pip install pyobjc-framework-CoreWLAN
+                from CoreWLAN import CWWiFiClient  # type: ignore[import-untyped]
+
+                client = CWWiFiClient.sharedWiFiClient()
+                iface = client.interface()
+                network_name = (iface.ssid() or "") if iface else ""
+            except Exception:
+                network_name = ""
+        elif system == "Windows":
+            cp = run_user_command(
+                ["netsh", "wlan", "show", "interfaces"],
+                timeout=5,
+                use_shell=False,
+                capture_output=True,
+            )
+            network_name = ""
+            for line in (cp.stdout or "").splitlines():
+                stripped = line.strip()
+                if stripped.startswith("SSID") and "BSSID" not in stripped:
+                    network_name = stripped.split(":", 1)[1].strip()
+                    break
+        else:
+            network_name = ""
     except Exception:
         network_name = ""
 
-    # 3.4 Get network MAC address
+    # 3.4 Get network MAC address — cross-platform via netifaces
     try:
-        cp = run_user_command(
-            ["ip", "addr"], timeout=5, use_shell=False, capture_output=True
-        )
-        stdout = cp.stdout or ""
         network_mac = ""
-        for line in stdout.splitlines():
-            if "link/ether" in line:
-                # extract mac
-                parts = line.split()
-                try:
-                    idx = parts.index("link/ether")
-                    network_mac = parts[idx + 1]
-                    break
-                except ValueError:
-                    continue
+        if network_interface:
+            addrs = netifaces.ifaddresses(network_interface)
+            if netifaces.AF_LINK in addrs:
+                network_mac = addrs[netifaces.AF_LINK][0].get("addr", "")
     except Exception:
         network_mac = ""
 
+    # 3.5 Get IP address — cross-platform via netifaces with socket fallback
     try:
-        cp = run_user_command(
-            ["hostname", "-I"], timeout=3, use_shell=False, capture_output=True
-        )
-        network_ip = (cp.stdout or "").strip()
+        network_ip = ""
+        if network_interface:
+            addrs = netifaces.ifaddresses(network_interface)
+            if netifaces.AF_INET in addrs:
+                network_ip = addrs[netifaces.AF_INET][0].get("addr", "")
+        if not network_ip:
+            # Fallback: connect outward to determine which local IP is in use
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            try:
+                s.connect(("8.8.8.8", 80))
+                network_ip = s.getsockname()[0]
+            finally:
+                s.close()
     except Exception:
         network_ip = ""
+
+    # 3.6 Get hostname — cross-platform via socket
     try:
-        cp = run_user_command(
-            ["hostname"], timeout=3, use_shell=False, capture_output=True
-        )
-        network_hostname = (cp.stdout or "").strip()
+        network_hostname = socket.gethostname()
     except Exception:
         network_hostname = ""
 

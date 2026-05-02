@@ -3,6 +3,8 @@
   packets back and forth.
 """
 
+import platform
+
 from utils.colors import blue, cyan, green, yellow
 from utils.config import Config
 from utils.font_styles import error_message, info_message, success_message
@@ -24,6 +26,10 @@ class Ping(BaseModule):
         self.options = "<prompt>: TARGET"
         self.requires_target = True
         self.target = None
+
+    # ------------------------------------------------------------------
+    # Public interface
+    # ------------------------------------------------------------------
 
     def run(self, target=None):
         """Execute ping on target (non-interactive)."""
@@ -61,6 +67,21 @@ class Ping(BaseModule):
             )
             self.main()
 
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _build_ping_args(target: str, count: int = 5) -> list:
+        """Build platform-appropriate ping arguments.
+
+        Linux/macOS use ``-c`` for packet count; Windows uses ``-n``.
+        """
+        if platform.system() == "Windows":
+            return ["ping", "-n", str(count), str(target)]
+        else:
+            return ["ping", "-c", str(count), str(target)]
+
     def _validate_target(self, target=None):
         """Validate target IP or hostname."""
         target = target or self.target
@@ -81,7 +102,7 @@ class Ping(BaseModule):
             if log_path:
                 # Capture output for logging
                 result = run_user_command(
-                    ["ping", "-c", "5", str(self.target)],
+                    Ping._build_ping_args(str(self.target)),
                     timeout=20,
                     use_shell=False,
                     capture_output=True,
@@ -92,7 +113,7 @@ class Ping(BaseModule):
             else:
                 # Stream without capturing
                 run_user_command(
-                    ["ping", "-c", "5", str(self.target)],
+                    Ping._build_ping_args(str(self.target)),
                     timeout=20,
                     use_shell=False,
                     capture_output=False,
@@ -157,7 +178,7 @@ class Ping(BaseModule):
         try:
             if log_path:
                 result = run_user_command(
-                    ["ping", "-c", "5", str(target)],
+                    Ping._build_ping_args(str(target)),
                     timeout=20,
                     use_shell=False,
                     capture_output=True,
@@ -167,7 +188,7 @@ class Ping(BaseModule):
                 print(result.stdout or "")
             else:
                 run_user_command(
-                    ["ping", "-c", "5", str(target)],
+                    Ping._build_ping_args(str(target)),
                     timeout=20,
                     use_shell=False,
                     capture_output=False,

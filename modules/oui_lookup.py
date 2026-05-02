@@ -1,14 +1,15 @@
-""" OUI Lookup Module
+"""OUI Lookup Module
 - Search the database (oui.txt) for the device OUI (first three parts of the MAC
   Address, separated by colons (:) )
 """
 
 # Import required modules and libraries
-from .base import BaseModule
-from utils.colors import green, yellow, cyan
+from utils.colors import cyan, green, yellow
 from utils.config import Config
-from utils.logging import LogManager
 from utils.font_styles import error_message, success_message
+from utils.logging import LogManager
+
+from .base import BaseModule
 
 
 class OuiLookup(BaseModule):
@@ -44,19 +45,27 @@ class OuiLookup(BaseModule):
 
     def _execute_core_logic(self):
         """Execute the OUI lookup in database."""
+        if not self.query:
+            error_message("No OUI query specified.")
+            return None
+
         oui_file_path = Config.OUI_FILE_PATH
         # Get log path only if logging is enabled
-        log_path = LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
+        log_path = (
+            LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
+        )
 
         # First check if OUI exists in file
         with open(oui_file_path) as f:
             if self.query not in f.read():
-                error_message(f'Could not find OUI {cyan(self.query, "bold")} in database.')
+                error_message(
+                    f"Could not find OUI {cyan(self.query, 'bold')} in database."
+                )
                 print()
                 return None
 
         print()
-        success_message(f'Found OUI {cyan(self.query, "bold")} in database!')
+        success_message(f"Found OUI {cyan(self.query, 'bold')} in database!")
         print()
 
         # Search and log results
@@ -64,7 +73,7 @@ class OuiLookup(BaseModule):
         with open(oui_file_path, "r") as source_file:
             for line in source_file:
                 if self.query in line:
-                    print(f'[{green("✓", "bold")}] {yellow(line, "bold")}')
+                    print(f"[{green('✓', 'bold')}] {yellow(line, 'bold')}")
                     results.append(line)
 
         # Write results to log if logging enabled

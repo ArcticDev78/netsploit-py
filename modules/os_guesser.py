@@ -6,7 +6,12 @@
 from utils.config import Config
 from utils.font_styles import error_message, info_message, success_message
 from utils.logging import LogManager
-from utils.secure_utils import run_user_command, validate_hostname, validate_ip_address
+from utils.secure_utils import (
+    get_privilege_prefix,
+    run_user_command,
+    validate_hostname,
+    validate_ip_address,
+)
 
 from .base import BaseModule
 
@@ -72,12 +77,11 @@ class OSGuesser(BaseModule):
             LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
         )
 
-        cmd_args = [
-            "sudo",
+        cmd_args = get_privilege_prefix() + [
             "nmap",
             "-O",
             "--osscan-guess",
-            self.target,
+            str(self.target),
             "-Pn",
         ]
         if log_path:
