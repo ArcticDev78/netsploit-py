@@ -50,6 +50,7 @@ MODULE_MAP: Dict[str, Tuple[str, str]] = {
     "ping": ("modules.ping", "Ping"),
     "vuln-scanner": ("modules.vuln_scanner", "VulnerabilityScanner"),
     "custom": ("modules.custom", "custom"),
+    "auto": ("modules.auto", "Auto"),
 }
 
 # Internal caches to avoid repeated imports/instantiation

@@ -1,12 +1,43 @@
-""" Denial-of-Service Module
+"""Denial-of-Service Module
 - Module that sends a succession of SYN requests to the target system
   to make the system unresponsive to legitimate traffic
 """
 
-from .base import BaseModule
-from utils.secure_utils import run_user_command, validate_ip_address, validate_hostname
-from utils.config import Config
+from utils.colors import cyan, yellow
 from utils.font_styles import error_message, info_message, success_message
+from utils.secure_utils import run_user_command, validate_hostname, validate_ip_address
+
+try:
+    from tabulate import tabulate
+except ImportError:
+
+    def tabulate(
+        tabular_data,
+        headers=(),
+        tablefmt="simple",
+        floatfmt="g",
+        intfmt="",
+        numalign="default",
+        stralign="default",
+        missingval="",
+        showindex="default",
+        disable_numparse=False,
+        colglobalalign=None,
+        colalign=None,
+        preserve_whitespace=False,
+        maxcolwidths=None,
+        headersglobalalign=None,
+        headersalign=None,
+        rowalign=None,
+        maxheadercolwidths=None,
+        break_long_words=True,
+        break_on_hyphens=True,
+    ):
+        # fallback if tabulate is not installed
+        return str(tabular_data)
+
+
+from .base import BaseModule
 
 
 class DoS(BaseModule):
@@ -48,7 +79,10 @@ class DoS(BaseModule):
     def _validate_target(self, target=None):
         """Validate target IP or hostname."""
         target = target or self.target
-        if not (validate_ip_address(target) or validate_hostname(target)):
+        if target is None:
+            error_message("No target specified")
+            return False
+        if not (validate_ip_address(str(target)) or validate_hostname(str(target))):
             error_message(f'Invalid target "{target}"')
             return False
         return True
@@ -56,7 +90,9 @@ class DoS(BaseModule):
     def _execute_core_logic(self):
         """Execute the DoS attack."""
         info_message(f"Running DoS attack on {self.target}")
-        info_message("Running a DoS attack properly requires the command to be run using sudo")
+        info_message(
+            "Running a DoS attack properly requires the command to be run using sudo"
+        )
         print()
 
         cmd_args = [
@@ -77,7 +113,9 @@ class DoS(BaseModule):
         ]
 
         try:
-            run_user_command(cmd_args, timeout=600, use_shell=False, capture_output=False)
+            run_user_command(
+                cmd_args, timeout=600, use_shell=False, capture_output=False
+            )
         except Exception as e:
             error_message(f"DoS attack failed: {e}")
             return
@@ -86,8 +124,11 @@ class DoS(BaseModule):
         success_message(f"Finished attacking {self.target}")
         # elif prompt_input == "run":
         # self.execute_attack()
+
     # elif prompt_input == "exit":
     # exit_program()
+
+
 # elif prompt_input == "back":
 # return
 # elif prompt_input == "":
@@ -99,35 +140,50 @@ class DoS(BaseModule):
 # else:
 # self.handle_invalid_command(prompt_input)
 
+
 def show_options(self):
     """Display the module options"""
-    value = get_target() or "(not set)"
+    value = getattr(self, "target", None) or "(not set)"
     table = [["OPTIONS", "VALUE", "OPTIONAL?"], ["TARGET", value, "no"]]
     print(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
+
 def set_target(self, prompt_input):
     """Set the target for the attack"""
-    option = prompt_input.split()[2]
-    set_target(option)
-    success_message(f'TARGET set to "{get_target()}"')
+    try:
+        option = prompt_input.split()[2]
+    except IndexError:
+        error_message("No target provided to set.")
+        return
+    self.target = option
+    success_message(f'TARGET set to "{self.target}"')
+
 
 def execute_attack(self):
     """Execute the DoS attack"""
-    target = get_target()
+    target = getattr(self, "target", None)
     if not target:
-        error_message("Cannot run DoS attack without TARGET being specified. Please specify the TARGET and try again")
+        error_message(
+            "Cannot run DoS attack without TARGET being specified. Please specify the TARGET and try again"
+        )
     else:
         self.run(target)
+
 
 def show_help(self):
     """Display help information for the module"""
     print()
-    print(f'{cyan(f"Help for {self.name}:", ["bold", "underlined"])}')
+    print(f"{cyan(f'Help for {self.name}:', ['bold', 'underlined'])}")
     print()
-    print(f'[{yellow("Optional", "italic")}] See options that you can set using {yellow("show options", "bold")}')
-    print(f'1. Set the target using {yellow("set TARGET 123.456.789", "bold")} or {yellow("TARGET => 123.456.789", "bold")} (replace with target IP)')
-    print(f'2. Run your attack using {yellow("run", "bold")}')
+    print(
+        f"[{yellow('Optional', 'italic')}] See options that you can set using {yellow('show options', 'bold')}"
+    )
+    print(
+        f"1. Set the target using {yellow('set TARGET 123.456.789', 'bold')} or {yellow('TARGET => 123.456.789', 'bold')} (replace with target IP)"
+    )
+    print(f"2. Run your attack using {yellow('run', 'bold')}")
     print()
+
 
 def handle_invalid_command(self, prompt_input):
     """Handle invalid command inputs"""

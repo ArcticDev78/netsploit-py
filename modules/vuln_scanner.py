@@ -5,11 +5,12 @@ This module provides functionality to scan targets for potential vulnerabilities
 It uses nmap with the nmap-vulners script to perform the scan.
 """
 
-from .base import BaseModule
-from utils.secure_utils import run_user_command, validate_ip_address, validate_hostname
-from utils.logging import LogManager
 from utils.config import Config
 from utils.font_styles import error_message, info_message, success_message
+from utils.logging import LogManager
+from utils.secure_utils import run_user_command, validate_hostname, validate_ip_address
+
+from .base import BaseModule
 
 
 class VulnerabilityScanner(BaseModule):
@@ -53,7 +54,10 @@ class VulnerabilityScanner(BaseModule):
     def _validate_target(self, target=None):
         """Validate target IP or hostname."""
         target = target or self.target
-        if not (validate_ip_address(target) or validate_hostname(target)):
+        if target is None:
+            error_message("No target specified")
+            return False
+        if not (validate_ip_address(str(target)) or validate_hostname(str(target))):
             error_message(f'Invalid target "{target}"')
             return False
         return True
@@ -64,7 +68,9 @@ class VulnerabilityScanner(BaseModule):
         print()
 
         # Get log path only if logging is enabled
-        log_path = LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
+        log_path = (
+            LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
+        )
 
         cmd_args = [
             "nmap",
@@ -78,7 +84,9 @@ class VulnerabilityScanner(BaseModule):
             cmd_args.extend(["-oN", str(log_path)])
 
         try:
-            run_user_command(cmd_args, timeout=300, use_shell=False, capture_output=False)
+            run_user_command(
+                cmd_args, timeout=300, use_shell=False, capture_output=False
+            )
         except Exception as e:
             error_message(f"Vulnerability scan failed: {e}")
             return None

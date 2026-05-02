@@ -1,13 +1,14 @@
-""" OS Guesser Module
+"""OS Guesser Module
 - Module to find/guess the operating system running on the target device
 """
 
 # Import required modules and libraries
-from .base import BaseModule
-from utils.secure_utils import run_user_command, validate_ip_address, validate_hostname
-from utils.logging import LogManager
 from utils.config import Config
 from utils.font_styles import error_message, info_message, success_message
+from utils.logging import LogManager
+from utils.secure_utils import run_user_command, validate_hostname, validate_ip_address
+
+from .base import BaseModule
 
 
 class OSGuesser(BaseModule):
@@ -51,7 +52,9 @@ class OSGuesser(BaseModule):
     def _validate_target(self, target=None):
         """Validate target IP or hostname."""
         target = target or self.target
-        if not (validate_ip_address(target) or validate_hostname(target)):
+        if not target or not (
+            validate_ip_address(str(target)) or validate_hostname(str(target))
+        ):
             error_message(f'Invalid target "{target}"')
             return False
         return True
@@ -59,11 +62,15 @@ class OSGuesser(BaseModule):
     def _execute_core_logic(self):
         """Execute the OS guessing nmap scan."""
         info_message(f"Running OS Guesser scan on {self.target}")
-        info_message("Running a OS Guesser scan properly requires the command to be run using sudo")
+        info_message(
+            "Running a OS Guesser scan properly requires the command to be run using sudo"
+        )
         print()
 
         # Get log path only if logging is enabled
-        log_path = LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
+        log_path = (
+            LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
+        )
 
         cmd_args = [
             "sudo",
@@ -77,7 +84,9 @@ class OSGuesser(BaseModule):
             cmd_args.extend(["-oN", str(log_path)])
 
         try:
-            run_user_command(cmd_args, timeout=300, use_shell=False, capture_output=False)
+            run_user_command(
+                cmd_args, timeout=300, use_shell=False, capture_output=False
+            )
         except Exception as e:
             error_message(f"OS Guesser scan failed: {e}")
             return None

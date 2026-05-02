@@ -1,8 +1,6 @@
-""" Netsploit Automation Assistant """
+"""Netsploit Automation Assistant"""
 
 # Import required modules and libraries
-
-from utils.colors import cyan, green, yellow
 
 from modules.custom import custom
 from modules.device_info import DeviceInfo
@@ -12,6 +10,7 @@ from modules.os_guesser import OSGuesser
 from modules.ping import Ping
 from modules.port_scanner import PortScanner
 from modules.vuln_scanner import VulnerabilityScanner
+from utils.colors import cyan, green, yellow
 from utils.font_styles import error_message, info_message, success_message
 
 
@@ -26,7 +25,7 @@ class Auto:
 
     def main(self):
         """Auto function to automate the usage of NetSploit"""
-        # from utils.prompt import prompt
+        from utils.prompt import prompt
 
         print()
         success_message("NetSploit is now running in auto mode")
@@ -34,13 +33,13 @@ class Auto:
         NetworkScanner().run()
         # 2) Prompt the user for the device on which a module of choice is to be executed
         target_device = input(
-            f'[{green(">", "bold")}] {cyan("Enter target device IP: ", "bold")}'
+            f"[{green('>', 'bold')}] {cyan('Enter target device IP: ', 'bold')}"
         )
         # If the target device was selected by the user, then continue module execution
         if target_device:
             print()
             # 3) List the available modules
-            print(f'{yellow("Available scans/attacks:", ["underlined", "bold"])}\n\n')
+            print(f"{yellow('Available scans/attacks:', ['underlined', 'bold'])}\n\n")
             print(
                 "  1 - Device Info\n  2 - OS Guesser\n  3 - Port Scanner\n  4 - DoS Attack\n  5 - Ping\n  6 - Vulnerability Scan\n  7 - Custom nmap command"
             )
@@ -50,7 +49,7 @@ class Auto:
             # 4) Prompt the user for the module of choice to be executed against the target device
             choice = str(
                 input(
-                    f'[{green(">", "bold")}] {cyan("Enter scan/attack to run on", "bold")} {yellow(target_device, "bold")}: '
+                    f"[{green('>', 'bold')}] {cyan('Enter scan/attack to run on', 'bold')} {yellow(target_device, 'bold')}: "
                 )
             )
 
@@ -58,7 +57,7 @@ class Auto:
 
             if choice == "1":
                 print()
-                info_message(f'Selected {green("device-info", "bold")} module')
+                info_message(f"Selected {green('device-info', 'bold')} module")
                 print(
                     """ \033[1;36m
         ╒═════════════════════════════════════════════════════════════════╕
@@ -77,7 +76,7 @@ class Auto:
 
             elif choice == "2":
                 print()
-                info_message(f'Selected {green("os-guesser", "bold")} module')
+                info_message(f"Selected {green('os-guesser', 'bold')} module")
                 print(
                     """ \033[1;36m
         ╒═════════════════════════════════════════════════════════════════╕
@@ -97,7 +96,7 @@ class Auto:
 
             elif choice == "3":
                 print()
-                info_message(f'Selected {green("port-scanner", "bold")} module')
+                info_message(f"Selected {green('port-scanner', 'bold')} module")
                 print(
                     """ \033[1;36m
         ╒═════════════════════════════════════════════════════════════════╕
@@ -115,7 +114,7 @@ class Auto:
 
             elif choice == "4":
                 print()
-                info_message(f'Selected {green("dos", "bold")} module')
+                info_message(f"Selected {green('dos', 'bold')} module")
                 print(
                     """ \033[1;36m
         ╒═════════════════════════════════════════════════════════════════╕
@@ -133,7 +132,7 @@ class Auto:
 
             elif choice == "5":
                 print()
-                info_message(f'Selected {green("ping", "bold")} module')
+                info_message(f"Selected {green('ping', 'bold')} module")
                 print(
                     """ \033[1;36m
         ╒═════════════════════════════════════════════════════════════════╕
@@ -145,14 +144,14 @@ class Auto:
         ╘═════════════════════════════════════════════════════════════════╛     \033[1;m"""
                 )
                 print()
-                Ping().main()
+                Ping().run(target_device)
                 info_message("Exited auto mode.")
                 print()
                 prompt()
 
             elif choice == "6":
                 print()
-                info_message(f'Selected {green("vuln-scanner", "bold")} module')
+                info_message(f"Selected {green('vuln-scanner', 'bold')} module")
                 print(
                     """ \033[1;36m
         ╒═════════════════════════════════════════════════════════════════╕
@@ -171,7 +170,7 @@ class Auto:
 
             elif choice == "7":
                 print()
-                info_message(f'Selected {green("custom", "bold")} module')
+                info_message(f"Selected {green('custom', 'bold')} module")
                 print()
                 custom()
                 info_message("Exited auto mode.")
