@@ -76,9 +76,14 @@ class VulnerabilityScanner(BaseModule):
             "nmap",
             "--script",
             "vulners",
+            "--script-args",
+            "vulners.mincvss=5.0",
             "-sV",
-            self.target,
+            "-T4",
+            "--top-ports",
+            "5000",
             "-Pn",
+            str(self.target),
         ]
         if log_path:
             cmd_args.extend(["-oN", str(log_path)])

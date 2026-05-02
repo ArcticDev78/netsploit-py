@@ -7,7 +7,12 @@
 from utils.config import Config
 from utils.font_styles import error_message, info_message, success_message
 from utils.logging import LogManager
-from utils.secure_utils import run_user_command, validate_hostname, validate_ip_address
+from utils.secure_utils import (
+    get_privilege_prefix,
+    run_user_command,
+    validate_hostname,
+    validate_ip_address,
+)
 
 from .base import BaseModule
 
@@ -70,12 +75,16 @@ class PortScanner(BaseModule):
             LogManager.get_log_file_path(self.name) if Config.LOGS_ENABLED else None
         )
 
-        cmd_args = [
+        cmd_args = get_privilege_prefix() + [
             "nmap",
-            "-T4",
-            self.target,
+            "-sS",
             "-sV",
+            "-T4",
+            "--top-ports",
+            "5000",
+            "--open",
             "-Pn",
+            str(self.target),
         ]
         if log_path:
             cmd_args.extend(["-oN", str(log_path)])

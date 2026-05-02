@@ -83,9 +83,8 @@ class DeviceInfo(BaseModule):
             "-v",
             "-A",
             "-T4",
-            str(self.target),
             "-Pn",
-            "-f",
+            str(self.target),
         ]
         if log_path:
             cmd_args.extend(["-oN", str(log_path)])

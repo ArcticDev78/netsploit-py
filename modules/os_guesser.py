@@ -81,8 +81,12 @@ class OSGuesser(BaseModule):
             "nmap",
             "-O",
             "--osscan-guess",
-            str(self.target),
+            "-sV",
+            "-T4",
+            "-p",
+            "1-1024",
             "-Pn",
+            str(self.target),
         ]
         if log_path:
             cmd_args.extend(["-oN", str(log_path)])

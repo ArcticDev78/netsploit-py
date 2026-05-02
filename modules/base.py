@@ -8,6 +8,7 @@ This file centralizes prompt helpers, input validation helpers and logging handl
 
 from __future__ import annotations
 
+import readline  # noqa: F401
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional

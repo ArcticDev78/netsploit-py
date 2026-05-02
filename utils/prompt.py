@@ -1,5 +1,6 @@
 """Main Prompt Module"""
 
+import readline  # noqa: F401
 import shutil
 import textwrap
 from typing import Any

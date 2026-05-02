@@ -48,7 +48,7 @@ class NetworkScanner(BaseModule):
         )
 
         try:
-            cmd_args = get_privilege_prefix() + ["nmap", "-sn", "-T4", ip_range]
+            cmd_args = get_privilege_prefix() + ["nmap", "-sn", "-T4", "-n", ip_range]
             if log_path:
                 cmd_args.extend(["-oN", str(log_path)])
 
