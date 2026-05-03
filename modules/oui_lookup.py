@@ -8,6 +8,7 @@ from utils.colors import cyan, green, yellow
 from utils.config import Config
 from utils.font_styles import error_message, success_message
 from utils.logging import LogManager
+from utils.oui_updater import check_and_update_oui
 
 from .base import BaseModule
 
@@ -45,6 +46,9 @@ class OuiLookup(BaseModule):
 
     def _execute_core_logic(self):
         """Execute the OUI lookup in database."""
+        check_and_update_oui(silent_if_fresh=False)
+        print()
+
         if not self.query:
             error_message("No OUI query specified.")
             return None

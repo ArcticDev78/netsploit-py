@@ -129,6 +129,35 @@ install_pip_deps() {
     return 0
 }
 
+# Download the Wireshark OUI/manuf database
+download_oui_db() {
+    print_header "Downloading OUI Database"
+
+    OUI_URL="https://www.wireshark.org/download/automated/data/manuf"
+    OUI_DEST="$SCRIPT_DIR/resources/oui.txt"
+
+    mkdir -p "$SCRIPT_DIR/resources"
+
+    if [ -f "$OUI_DEST" ]; then
+        print_ok "OUI database already exists — skipping download"
+        print_warn "(netsploit will auto-refresh it when it is >30 days old)"
+        return 0
+    fi
+
+    print_warn "Fetching $OUI_URL …"
+    if command -v curl &> /dev/null; then
+        curl -fsSL "$OUI_URL" -o "$OUI_DEST" && print_ok "OUI database saved to $OUI_DEST" \
+            || { print_warn "curl failed — netsploit will retry at first launch"; return 0; }
+    elif command -v wget &> /dev/null; then
+        wget -q "$OUI_URL" -O "$OUI_DEST" && print_ok "OUI database saved to $OUI_DEST" \
+            || { print_warn "wget failed — netsploit will retry at first launch"; return 0; }
+    else
+        print_warn "Neither curl nor wget found — netsploit will download the database at first launch"
+    fi
+
+    return 0
+}
+
 # Create log directories
 setup_log_dirs() {
     print_header "Setting Up Log Directories"
@@ -183,6 +212,11 @@ main() {
     echo ""
 
     if ! install_pip_deps; then
+        return 1
+    fi
+    echo ""
+
+    if ! download_oui_db; then
         return 1
     fi
     echo ""

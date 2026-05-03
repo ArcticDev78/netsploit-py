@@ -9,6 +9,7 @@ import psutil  # type: ignore[import-untyped]
 from tabulate import tabulate
 
 from utils.colors import blue, cyan, green, yellow
+from utils.oui_updater import check_and_update_oui
 from utils.secure_utils import run_user_command
 
 __version__ = "1.0.0"
@@ -31,6 +32,9 @@ def startup():
 
     # 2. Print init messages (version, dependencies and extra info)
     print(yellow(f" => netsploit v{__version__}", "bold"))
+
+    # 2a. Refresh the OUI database if it is stale (non-fatal on failure)
+    check_and_update_oui()
     print(yellow(" => Powered by nmap, ping and hping3", "bold"))
     print(green(" => 9 modules ready to use", "bold"))
     print(blue(" => 5 Scanners, 3 Info and 1 Attack Module", "bold"))
